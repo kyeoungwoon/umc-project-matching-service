@@ -1,0 +1,10 @@
+packages:
+  - .
+
+onlyBuiltDependencies:
+  - '@evilmartians/lefthook'
+  - '@sentry/cli'
+  - '@vercel/speed-insights'
+  - core-js-pure
+  - esbuild
+  - lefthook

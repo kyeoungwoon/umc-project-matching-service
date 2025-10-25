@@ -1,0 +1,173 @@
+name: Backend Build&Deploy Docker Image w/ largeserver
+
+on:
+#  push:
+#    branches:
+#      - main
+#    # 👇 BE, 공유 패키지가 변경되었을 때만 실행
+#    paths:
+#      - "apps/api/**"
+#      - "packages/**"
+#      - "package.json"
+#      - "pnpm-lock.yaml"
+#      - "pnpm-workspace.yaml"
+  workflow_dispatch:
+
+jobs:
+  build-docker-image-and-push:
+    name: Build and Push to Docker Hub
+    # runs-on: ubuntu-latest
+    runs-on: [self-hosted, largeserver]
+    strategy:
+      # 👇 amd64와 arm64를 병렬로 독립적으로 빌드
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+        include:
+          - platform: linux/amd64
+            tag-suffix: amd64
+          - platform: linux/arm64
+            tag-suffix: arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # QEMU 설정 (다른 아키텍처 에뮬레이션)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # Docker Buildx 빌더 설정
+      # multi-arch를 지원하는 드라이버로 자동 전환
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Docker Hub 로그인
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Docker 이미지 빌드 및 푸시
+      # 위에서 작성한 Dockerfile을 사용하여 이미지를 빌드하고 태깅하여 푸시합니다.
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ${{secrets.DOCKER_BUILD_CONTEXT_PATH}} # 빌드 컨텍스트 경로
+      #     file: ${{secrets.DOCKER_DOCKERFILE_PATH}} # Dockerfile path
+      #     push: true # 빌드 후 푸시 실행
+      #     tags: ${{secrets.DOCKER_IMAGE_NAME_WITH_TAG}} # version은 latest로 우선 고정
+      #     platforms: linux/amd64,linux/arm64
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # 모노레포 루트를 컨텍스트로 지정
+          context: .
+          # Dockerfile의 실제 위치
+          file: apps/api/scripts/docker/dockerfile
+          push: true
+          # 아키텍처별로 다른 태그
+          tags: ${{ secrets.DOCKER_IMAGE_NAME }}:${{ matrix.tag-suffix }}
+          # 한 번에 하나의 플랫폼만 빌드
+          platforms: ${{ matrix.platform }}
+          # 빌드 캐시 사용으로 속도 최적화
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ==================================================================================
+  # JOB 2: 분리된 이미지를 하나의 태그(:latest)로 합치기 (Manifest)
+  # ==================================================================================
+  merge-manifest:
+    name: Create Docker Manifest
+    needs: build-docker-image-and-push
+    runs-on: largeserver
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          # amd64와 arm64 이미지를 묶어서 latest 태그 생성
+          docker buildx imagetools create -t ${{ secrets.DOCKER_IMAGE_NAME }}:latest \
+            ${{ secrets.DOCKER_IMAGE_NAME }}:amd64 \
+            ${{ secrets.DOCKER_IMAGE_NAME }}:arm64
+
+  # ==================================================================================
+  # JOB 3: 서버 배포
+  # ==================================================================================
+  docker-pull-and-run:
+    name: Pull Latest Docker Image and Run on Home Server
+    needs: merge-manifest
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH 접속 및 스크립트 실행
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_SSH_HOST }}
+          username: ${{ secrets.SERVER_SSH_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          script: |
+            echo "[1] docker가 설치되어 있는지 확인합니다."
+            if which docker > /dev/null 2>&1; then
+              echo "✅ docker가 정상적으로 인식됩니다: $(which docker)"
+            else
+              echo "❌ docker를 PATH에서 찾을 수 없습니다. PATH를 등록합니다."
+              export PATH="$PATH:/usr/local/bin"
+              if which docker > /dev/null 2>&1; then
+                echo "✅ PATH 등록 후 docker 인식됨: $(which docker)"
+              else
+                echo "❌ 여전히 docker를 찾을 수 없습니다. docker가 설치되어 있는지 또는 설치 경로를 확인하세요."
+                exit 1
+              fi
+            fi
+
+            echo "✅ Docker 이미지 Pull 완료"
+
+            echo "=============================="
+            echo "💪 env 파일 path로 이동"
+            echo "=============================="
+
+            echo "🫶 이동 전 디렉토리: $(pwd)"
+            cd ${{ secrets.SERVER_APP_DIRECTORY }}
+            echo "✅ 현재 디렉토리: $(pwd)"
+
+            echo "💪 Creating .env files"
+            echo "${{ secrets.DOTENV_DEFAULT }}" | awk 'NF' > .env
+            echo "✅ .env files created"
+
+            echo "=============================="
+            echo "🚀 새 컨테이너 실행 시작"
+            echo "=============================="
+
+            echo "📁 Compose 파일 경로: ${{ secrets.SERVER_DOCKER_COMPOSE_PATH }}"
+            if [ ! -f "${{ secrets.SERVER_DOCKER_COMPOSE_PATH }}" ]; then
+              echo "❌ Compose 파일을 찾을 수 없습니다: ${{ secrets.SERVER_DOCKER_COMPOSE_PATH }}"
+              exit 1
+            fi
+
+            echo "=============================="
+            echo "📦 최신 Docker 이미지 Pull 시작"
+            echo "=============================="
+
+            docker compose -f "${{ secrets.SERVER_DOCKER_COMPOSE_PATH }}" pull --ignore-pull-failures
+
+            echo "=============================="
+            echo "🔁 Docker Compose UP 시작"
+            echo "=============================="
+
+            docker compose -f "${{ secrets.SERVER_DOCKER_COMPOSE_PATH }}" up -d --remove-orphans
+
+            echo "=============================="
+            echo "✅ Docker Compose 실행 완료"
+            echo "=============================="
+
+            docker logs ${{secrets.SERVER_DOCKER_CONATINER_NAME}} --timestamps --tail 100
+
+            echo "=============================="
+            echo "🎉 전체 프로세스 완료"
+            echo "=============================="

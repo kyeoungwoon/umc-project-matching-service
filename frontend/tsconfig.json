@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": "./src",
+    "paths": {
+      // 전역 리소스 계층
+      "@styles/*": ["styles/*"],
+      "@assets/*": ["assets/*"],
+      "@icons/*": ["common/components/icons/*"],
+      "@svgs/*": ["assets/svgs/*"],
+      // 라이브러리 & API 계층
+      "@lib/*": ["lib/*"],
+      "@api/*": ["api/*"],
+      // common 계층
+      "@common/types/*": ["common/types/*"],
+      "@common/constants/*": ["common/constants/*"],
+      "@common/errors/*": ["common/errors/*"],
+      "@common/schemas/*": ["common/schemas/*"],
+      "@common/utils/*": ["common/utils/*"],
+      "@common/hooks/*": ["common/hooks/*"],
+      "@common/apis/*": ["common/apis/*"],
+      "@common/components/*": ["common/components/*"],
+      "@common/stores/*": ["common/stores/*"],
+      "@buttons/*": ["common/components/buttons/*"], // components 하위라 여기 배치
+      "@common/*": ["common/*"],
+      // features 계층
+      "@features/*": ["features/*"],
+      "@skeletons/*": ["skeletons/*"],
+      // 앱 엔트리 계층
+      "@app/*": ["app/*"],
+      "@/*": ["*"]
+    }
+  },
+  "include": [
+    "image-modules.d.ts",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/features/ai-meeting-manager/components/MinutesClient/MinutesClient.client.tsx",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
+}

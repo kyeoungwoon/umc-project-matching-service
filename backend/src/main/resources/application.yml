@@ -1,0 +1,82 @@
+logging:
+  file:
+    name: logs/upms.log
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{traceId}]){magenta} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n"
+
+  level:
+    root: INFO
+
+    # 내 애플리케이션 - 개발 시 DEBUG
+    kr.kyeoungwoon.upms: DEBUG
+
+    # Spring Web - 요청/응답 확인
+    org.springframework.web: DEBUG
+
+    # JPA/Hibernate - SQL 쿼리 확인
+    org.hibernate.SQL: DEBUG # 실행되는 SQL
+    org.hibernate.orm.jdbc.bind: TRACE # 바인딩 파라미터 (Hibernate 6+)
+
+    # 트랜잭션 확인
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa: DEBUG
+
+    # 시끄러운 로그 끄기
+    org.springframework.web.client.DefaultRestClient: OFF
+    org.apache.http: WARN
+    com.zaxxer.hikari: WARN
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    prometheus:
+      access: unrestricted
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+server:
+  port: 8080
+#  servlet:
+#    context-path: /api
+
+spring:
+  config:
+    import:
+      - optional:classpath:application-secret.yml
+      - optional:file:/app/config/application-secret.yml
+
+  jackson:
+    generator:
+      write-numbers-as-strings: true
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        # dialect는 명시가 불필요해서 생략
+
+springdoc:
+  swagger-ui:
+    path: /swagger # 원하는 경로로 변경
+    enabled: false
+    operations-sorter: method # API 정렬 (method, alpha)
+    tags-sorter: alpha # 태그 정렬
+
+  api-docs:
+    path: /api-docs # API 문서 경로
+    enabled: false
