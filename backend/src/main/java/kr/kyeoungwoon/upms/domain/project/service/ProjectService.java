@@ -60,7 +60,7 @@ public class ProjectService {
   }
 
   public void throwIfProjectNotBelongsToChapter(Long projectId, Long chapterId) {
-    if (projectRepository.existsByProjectIdAndChapterId(projectId, chapterId)) {
+    if (projectRepository.existsByIdAndChapterId(projectId, chapterId)) {
       return;
     }
 
@@ -172,6 +172,8 @@ public class ProjectService {
         .description(project.getDescription())
         .productOwnerId(project.getProductOwner().getId())
         .productOwnerName(project.getProductOwner().getName())
+        .productOwnerNickname(project.getProductOwner().getNickname())
+        .productOwnerSchool(project.getProductOwner().getSchool().getName())
         .chapterId(project.getChapter().getId())
         .chapterName(project.getChapter().getName())
         .logoImageUrl(project.getLogoImageUrl())
