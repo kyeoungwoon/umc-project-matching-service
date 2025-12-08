@@ -87,6 +87,11 @@ const ProjectInfoCard = ({
     // props.link 로 새로운 창을 띄워준다
     if (notionLink) {
       window.open(notionLink, '_blank');
+    } else {
+      toast.error('프로젝트 기획안 링크가 없습니다.', {
+        position: 'top-center',
+        description: '해당 프로젝트의 PO가 기획안 링크를 등록하지 않았습니다.',
+      });
     }
   };
 
@@ -124,19 +129,19 @@ const ProjectInfoCard = ({
         <div className={'flex flex-col gap-y-3'}>
           <span>프로젝트 제목</span>
           <Input
-            value={editedProject.name}
+            value={editedProject.name || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, title: e.target.value }))}
             className="text-xl font-bold"
           />
           <span>프로젝트 설명</span>
           <Textarea
-            value={editedProject.description}
+            value={editedProject.description || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, description: e.target.value }))}
             className="text-muted-foreground mb-2 text-lg"
           />
           <span>프로젝트 기획안</span>
           <Input
-            value={editedProject.notionLink}
+            value={editedProject.notionLink || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, link: e.target.value }))}
             className="text-muted-foreground mb-2 text-lg"
           />
