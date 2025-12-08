@@ -93,7 +93,7 @@ public class TestController {
     return ApiResponse.onSuccess(schoolService.bulkCreate(body));
   }
 
-  @Operation(summary = "9기 지부, 학교 더미 데이터 생성", description = "9기 지부 및 학교 연결")
+  @Operation(summary = "더미 학교, 지부, 프로젝트, 챌린저, 운영진 생성", description = "개발 서버용 테스트 기능")
   @PostMapping("dummy/school-chapter")
   public ApiResponse<String> createAllSchools() {
     DummySchools dummySchools = new DummySchools();
@@ -265,7 +265,7 @@ public class TestController {
     );
   }
 
-  @Operation(summary = "9기 전체 지부 프로젝트 생성", description = "4개 지부(Leo, Scorpio, Cetus, Pegasus) 각각에 3개씩 프로젝트와 TO 생성")
+  @Operation(summary = "지부별 더미 프로젝트 생성", description = "4개 지부(Leo, Scorpio, Cetus, Pegasus) 각각에 3개씩 프로젝트와 TO 생성")
   @PostMapping("dummy/projects")
   public ApiResponse<String> createAllChapterProjects() {
     // 1. 모든 Chapter 조회
