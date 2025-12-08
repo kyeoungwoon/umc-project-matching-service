@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 
-import { router } from 'next/client';
 import { useRouter } from 'next/navigation';
 
 import { useForm } from '@tanstack/react-form';
@@ -38,6 +37,8 @@ import { ChallengerPart, ChallengerPartEnum } from '@api/types/common';
 
 import { partOptionLabels } from '@common/constants/part-options.constants';
 import { ROUTES } from '@common/constants/routes.constants';
+
+import { FileUploader } from '@common/components/FileUploader';
 
 import { useGetUser } from '@features/auth/hooks/useAuthStore';
 
@@ -170,8 +171,46 @@ const CreateProjectPage = () => {
               name={'notionLink'}
               label="기획안 링크 (Notion 등)"
             />
-            <InputFormField tanstackForm={form} name={'logoImageUrl'} label="로고 이미지 링크" />
-            <InputFormField tanstackForm={form} name={'bannerImageUrl'} label="배너 이미지 링크" />
+            <form.Field
+              name={'logoImageUrl'}
+              children={(field: any) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>로고 이미지</FieldLabel>
+                    <FileUploader
+                      accept="image/*"
+                      maxSize={5 * 1024 * 1024}
+                      buttonText="로고 업로드"
+                      showPreview={true}
+                      value={field.state.value}
+                      onUploadComplete={(url) => field.handleChange(url)}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name={'bannerImageUrl'}
+              children={(field: any) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>배너 이미지</FieldLabel>
+                    <FileUploader
+                      accept="image/*"
+                      maxSize={10 * 1024 * 1024}
+                      buttonText="배너 업로드"
+                      showPreview={true}
+                      value={field.state.value}
+                      onUploadComplete={(url) => field.handleChange(url)}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            />
             <FieldGroup>
               <FieldLabel>모집 파트 및 인원</FieldLabel>
               <form.Field
