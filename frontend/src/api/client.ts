@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
     // 401 에러 시 로그인 페이지로 리다이렉트 등의 처리
     // console.error('API 요청 중 오류가 발생했습니다:', error.response);
     if (error.response?.status === 401 && error?.response?.data?.code.startsWith('JWT')) {
-      console.error('JWT 토큰 관련 오류가 발생하였습니다.');
+      // console.error('JWT 토큰 관련 오류가 발생하였습니다.');
       // 토큰 제거
       AuthStore.getState().actions.clearUser();
       // 필요시 로그인 페이지로 리다이렉트

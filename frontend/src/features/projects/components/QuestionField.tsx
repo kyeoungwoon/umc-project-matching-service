@@ -3,6 +3,8 @@
 import { QuestionTypeEnum } from '@api/types/common';
 import { ApplicationFormQuestion } from '@api/types/question';
 
+import { FileQuestion } from '@features/projects/components/FileQuestion';
+
 import { ObjectiveQuestion } from './ObjectiveQuestion';
 import { SubjectiveQuestion } from './SubjectiveQuestion';
 
@@ -23,7 +25,10 @@ export const QuestionField = ({ tanstackForm, question, index }: QuestionFieldPr
       children={(field: any) => {
         if (question.type === QuestionTypeEnum.SUBJECTIVE) {
           return <SubjectiveQuestion field={field} question={question} />;
+        } else if (question.type === QuestionTypeEnum.FILE) {
+          return <FileQuestion field={field} question={question} />;
         }
+
         return <ObjectiveQuestion field={field} question={question} />;
       }}
     />

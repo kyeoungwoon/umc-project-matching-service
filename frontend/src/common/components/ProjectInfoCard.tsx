@@ -168,7 +168,9 @@ const ProjectInfoCard = ({
             {poInfo.schoolName} {poInfo.nickname}/{poInfo.name}
           </div>
         </div>
-        <p className="text-muted-foreground text-base">{description}</p>
+        <p className="text-muted-foreground line-clamp-3 text-base whitespace-pre-line">
+          {description}
+        </p>
 
         {/*TODO: 안내멘트, 삭제 필요*/}
         {/*<div className="text-muted-foreground mb-2 text-sm">*/}
@@ -216,14 +218,15 @@ const ProjectInfoCard = ({
             variant={'default'}
             className={'h-full flex-1 text-base'}
           >
-            기획안 자세히 보기
+            Notion에서 보기
           </Button>
           <Button
             onClick={handleApplyClick}
             variant={'outline'}
             className={'h-full flex-1 text-base'}
           >
-            {isProductOwner ? '지원자 보기' : '지원하기'}
+            자세히 보기
+            {/*{isProductOwner ? '프로' : '지원하기'}*/}
           </Button>
         </div>
       </div>

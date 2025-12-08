@@ -66,6 +66,9 @@ export const queryKeyStore = createQueryKeyStore({
     current: (chapterId: string) => [chapterId],
     byTimeRange: (params: { chapterId: string; startTime: string; endTime: string }) => [params],
   },
+  s3: {
+    file: (fileId: number) => [fileId],
+  },
 });
 
 // 프로젝트 지원 Query Keys
@@ -180,4 +183,11 @@ export const matchingRoundQueryKeys = {
     queryKeyStore.matchingRounds.list(params).queryKey,
   details: () => queryKeyStore.matchingRounds.detail._def,
   detail: (id: string) => queryKeyStore.matchingRounds.detail(id).queryKey,
+};
+
+// S3 파일 Query Keys
+export const s3QueryKeys = {
+  all: queryKeyStore.s3._def,
+  files: () => queryKeyStore.s3.file._def,
+  file: (fileId: number) => queryKeyStore.s3.file(fileId).queryKey,
 };

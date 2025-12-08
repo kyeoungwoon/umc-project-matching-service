@@ -1,0 +1,57 @@
+pre-commit:
+  parallel: true
+  commands:
+    frontend-eslint:
+      glob: "frontend/**/*.{js,ts,jsx,tsx}"
+      run: |
+        echo "🔍 ========================================="
+        echo "🔧 Running ESLint on frontend staged files..."
+        echo "🔍 ========================================="
+        cd frontend && pnpm exec eslint {staged_files} --fix || exit 1
+        echo "✅ ESLint completed successfully!"
+      stage_fixed: true
+    prettier:
+      glob: "frontend/**/*.{js,ts,jsx,tsx,json,yaml,md,css}"
+      run: |
+        echo "💅 ========================================="
+        echo "🎨 Running Prettier on frontend staged files..."
+        echo "💅 ========================================="
+        pnpm exec prettier --write {staged_files} || exit 1
+        echo "✅ Code formatting completed!"
+      stage_fixed: true
+    type-check:
+      glob: "frontend/**/*.{ts,tsx}" # TS 파일 변경 시에만
+      run: |
+        echo "🔍 ========================================="
+        echo "📝 Running TypeScript type checking (frontend)..."
+        echo "🔍 ========================================="
+        cd frontend && pnpm type-check || exit 1
+        echo "✅ Type checking completed successfully!"
+
+pre-push:
+  commands:
+    frontend-build:
+      glob: "frontend/**/*" # frontend 변경 시에만 빌드
+      run: |
+        echo "🚀 ========================================="
+        echo "🚀 Starting frontend build for push verification..."
+        echo "🚀 ========================================="
+        echo "📊 Step 1/2: Running type check..."
+        if cd frontend && pnpm type-check; then
+          echo "✅ Type check passed successfully!"
+          echo "📊 Step 2/2: Building frontend..."
+          echo "🔨 ========================================="
+          echo "🏗️ Running production build..."
+          echo "🔨 ========================================="
+          cd frontend && pnpm build || exit 1
+          echo "🎉 ========================================="
+          echo "✅ Frontend build completed successfully!"
+          echo "🚀 Ready to push!"
+          echo "🎉 ========================================="
+        else
+          echo "❌ ========================================="
+          echo "❌ Frontend type check failed!"
+          echo "🚫 Build skipped - fix type errors first"
+          echo "❌ ========================================="
+          exit 1
+        fi
