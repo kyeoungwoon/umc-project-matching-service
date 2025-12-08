@@ -96,9 +96,15 @@ const ALL_MENUS: SidebarMenus[] = [
     label: 'Plan',
     items: [
       {
-        title: '내 프로젝트 관리',
+        title: '내 프로젝트 조회',
         url: ROUTES.PROJECTS.MY_PROJECTS,
         icon: Settings,
+        isVisible: requiresPart(ChallengerPartEnum.PLAN),
+      },
+      {
+        title: '프로젝트 만들기',
+        url: ROUTES.PROJECTS.CREATE,
+        icon: SquarePlusIcon,
         isVisible: requiresPart(ChallengerPartEnum.PLAN),
       },
     ],

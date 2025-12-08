@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@styles/components/ui/select';
+import { Separator } from '@styles/components/ui/separator';
 import { Textarea } from '@styles/components/ui/textarea';
 
 import { useCreateProjectTosBulk } from '@api/tanstack/project-to.queries';
@@ -39,6 +40,7 @@ import { partOptionLabels } from '@common/constants/part-options.constants';
 import { ROUTES } from '@common/constants/routes.constants';
 
 import { FileUploader } from '@common/components/FileUploader';
+import ProjectInfoCard from '@common/components/ProjectInfoCard';
 
 import { useGetUser } from '@features/auth/hooks/useAuthStore';
 
@@ -71,6 +73,7 @@ const CreateProjectPage = () => {
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogDescription, setDialogDescription] = useState('');
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [isPreviewDialogOpen, setPreviewDialogOpen] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -132,6 +135,10 @@ const CreateProjectPage = () => {
     }
   };
 
+  const handlePreviewClick = () => {
+    setPreviewDialogOpen(true);
+  };
+
   return (
     <div className="flex w-full flex-col items-center justify-center">
       <form
@@ -166,10 +173,33 @@ const CreateProjectPage = () => {
                 );
               }}
             />
-            <InputFormField
-              tanstackForm={form}
+            <form.Field
               name={'notionLink'}
-              label="기획안 링크 (Notion 등)"
+              children={(field: any) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>
+                      <div className={'flex flex-col gap-y-1'}>
+                        <p>기획안 링크</p>
+                        <p className={'text-muted-foreground whitespace-pre-line'}>
+                          프로젝트에 대한 보다 자세한 기획안입니다.{'\n'}
+                          기존에 사용중이시던 Notion 링크를 넣으시는 것을 추천드립니다.
+                        </p>
+                      </div>
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className={clsx(isInvalid && 'border-red-500')}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
             />
             <form.Field
               name={'logoImageUrl'}
@@ -177,7 +207,15 @@ const CreateProjectPage = () => {
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field>
-                    <FieldLabel htmlFor={field.name}>로고 이미지</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>
+                      <div className={'flex flex-col gap-y-1'}>
+                        <p>로고 이미지</p>
+                        <p className={'text-muted-foreground whitespace-pre-line'}>
+                          프로젝트 카드 및 목록에 표시될 로고 이미지입니다.{'\n'}
+                          가로 세로 비율이 1:1인 이미지를 권장합니다.
+                        </p>
+                      </div>
+                    </FieldLabel>
                     <FileUploader
                       accept="image/*"
                       maxSize={5 * 1024 * 1024}
@@ -197,7 +235,16 @@ const CreateProjectPage = () => {
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field>
-                    <FieldLabel htmlFor={field.name}>배너 이미지</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>
+                      <div className={'flex flex-col gap-y-1'}>
+                        <p>배너 이미지</p>
+                        <p className={'text-muted-foreground whitespace-pre-line'}>
+                          프로젝트 카드 및 목록에 표시될 배너 이미지입니다.{'\n'}
+                          가로 세로 비율이 4:1인 이미지를 권장합니다. (800*200, 1800*300 두 사이즈로
+                          표시됩니다)
+                        </p>
+                      </div>
+                    </FieldLabel>
                     <FileUploader
                       accept="image/*"
                       maxSize={10 * 1024 * 1024}
@@ -212,7 +259,15 @@ const CreateProjectPage = () => {
               }}
             />
             <FieldGroup>
-              <FieldLabel>모집 파트 및 인원</FieldLabel>
+              <FieldLabel>
+                <div className={'flex flex-col gap-y-1'}>
+                  <p>모집 파트 및 인원</p>
+                  <p className={'text-muted-foreground whitespace-pre-line'}>
+                    Plan은 PO를 제외하고 추가로 있다면 (Plan이 1명 이상이라면) 넣어주세요.{'\n'}
+                    나머지 파트는 각 지부 내에서 본인에게 배정된 TO를 알맞게 입력 부탁드립니다.
+                  </p>
+                </div>
+              </FieldLabel>
               <form.Field
                 name="toItems"
                 mode="array"
@@ -277,7 +332,10 @@ const CreateProjectPage = () => {
               />
             </FieldGroup>
           </CardContent>
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={handlePreviewClick}>
+              카드 미리보기
+            </Button>
             <Button type="button" onClick={handleCreateClick} disabled={isPending}>
               {isPending ? '생성 중...' : '프로젝트 생성'}
             </Button>
@@ -311,6 +369,48 @@ const CreateProjectPage = () => {
           <DialogFooter>
             <DialogClose asChild>
               <Button>확인</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/*미리보기 Dialog*/}
+      <Dialog open={isPreviewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>프로젝트 미리보기</DialogTitle>
+            <DialogDescription>
+              입력한 정보를 바탕으로 프로젝트 카드가 어떻게 보일지 미리 확인할 수 있습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <Separator />
+          <div className="mt-4 flex w-full items-center justify-center">
+            <ProjectInfoCard
+              id="preview"
+              name={form.state.values.name || '프로젝트 이름'}
+              description={form.state.values.description || '프로젝트 설명'}
+              productOwnerName={user?.info.name || ''}
+              productOwnerId={user?.info.id || ''}
+              chapterName={user?.info.chapterName || ''}
+              chapterId={user?.info.chapterId || ''}
+              logoImageUrl={form.state.values.logoImageUrl}
+              bannerImageUrl={form.state.values.bannerImageUrl}
+              notionLink={form.state.values.notionLink}
+              projectTos={form.state.values.toItems.map((item, index) => ({
+                id: `preview-${index}`,
+                projectId: 'preview',
+                part: item.part,
+                toCount: item.toCount,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              }))}
+              projectMembers={[]}
+              createdAt={new Date().toISOString()}
+              updatedAt={new Date().toISOString()}
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="default">닫기</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

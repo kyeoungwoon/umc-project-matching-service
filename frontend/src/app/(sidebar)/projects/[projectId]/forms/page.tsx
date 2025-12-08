@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 
-import { CircleAlertIcon, InboxIcon, UsersIcon } from 'lucide-react';
+import { CircleAlertIcon, InboxIcon, PencilIcon, UsersIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@styles/components/ui/badge';
 import { Button } from '@styles/components/ui/button';
@@ -13,7 +16,7 @@ import { Label } from '@styles/components/ui/label';
 import { Separator } from '@styles/components/ui/separator';
 
 import { useGetForms } from '@api/tanstack/forms.queries';
-import { useGetProject } from '@api/tanstack/projects.queries';
+import { useGetProject, useUpdateProject } from '@api/tanstack/projects.queries';
 import { ChapterAdminRoleEnum } from '@api/types/common';
 
 import { ROUTES } from '@common/constants/routes.constants';
@@ -28,6 +31,7 @@ import {
 } from '@common/hooks/check-challenger-permissions';
 
 import DefaultSkeleton from '@common/components/DefaultSkeleton';
+import { FileUploader } from '@common/components/FileUploader';
 
 import { useGetUser } from '@features/auth/hooks/useAuthStore';
 
@@ -39,14 +43,46 @@ const ProjectFormsPage = () => {
 
   const { data: project, isLoading: isProjectLoading } = useGetProject(projectId);
   const { data: projectForms, isLoading: isProjectFormsLoading } = useGetForms(projectId);
+  const { mutate: updateProject } = useUpdateProject();
 
   const user = useGetUser();
+
+  // 이미지 편집 상태
+  const [isEditingBanner, setIsEditingBanner] = useState(false);
+  const [isEditingLogo, setIsEditingLogo] = useState(false);
 
   // 권한 체크
   const isSchoolLead = useHasChallengerChapterRole(ChapterAdminRoleEnum.SCHOOL_LEAD);
   const router = useRouter();
   const handleCreateFormClick = () => {
     router.push(ROUTES.PROJECTS.CREATE_FORM(projectId));
+  };
+
+  const handleImageUpdate = (type: 'logo' | 'banner', url: string) => {
+    if (!project) return;
+
+    const updateData = {
+      name: project.name,
+      description: project.description,
+      productOwnerId: project.productOwnerId,
+      notionLink: project.notionLink,
+      logoImageUrl: type === 'logo' ? url : project.logoImageUrl,
+      bannerImageUrl: type === 'banner' ? url : project.bannerImageUrl,
+    };
+
+    updateProject(
+      { id: projectId, request: updateData },
+      {
+        onSuccess: () => {
+          toast.success(`${type === 'logo' ? '로고' : '배너'} 이미지가 업데이트되었습니다.`);
+          if (type === 'logo') setIsEditingLogo(false);
+          if (type === 'banner') setIsEditingBanner(false);
+        },
+        onError: () => {
+          toast.error(`${type === 'logo' ? '로고' : '배너'} 이미지 업데이트에 실패했습니다.`);
+        },
+      },
+    );
   };
 
   if (isProjectLoading || !project || isProjectFormsLoading || !projectForms) {
@@ -59,26 +95,84 @@ const ProjectFormsPage = () => {
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-6">
       {/* Header Section */}
-      <Image
-        src={project.bannerImageUrl || 'https://placehold.co/600x400'}
-        alt={`${project.name} 배너 이미지`}
-        width={1800}
-        height={300}
-        className={'h-300pxr w-full bg-gray-200 object-cover object-center'}
-      />
+      <div className="group relative">
+        <Image
+          src={project.bannerImageUrl || 'https://placehold.co/600x400'}
+          alt={`${project.name} 배너 이미지`}
+          width={1800}
+          height={300}
+          className={'h-300pxr w-full bg-gray-200 object-cover object-center'}
+        />
+        {isProductOwner && !isEditingBanner && (
+          <button
+            onClick={() => setIsEditingBanner(true)}
+            className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+          >
+            <div className="flex flex-col items-center gap-2 text-white">
+              <PencilIcon className="h-8 w-8" />
+              <span className="text-lg font-medium">배너 이미지 수정</span>
+            </div>
+          </button>
+        )}
+        {isEditingBanner && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/70 p-8">
+            <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-6">
+              <h3 className="text-xl font-bold">배너 이미지 변경</h3>
+              <FileUploader
+                accept="image/*"
+                maxSize={10 * 1024 * 1024}
+                buttonText="새 배너 업로드"
+                onUploadComplete={(url) => handleImageUpdate('banner', url)}
+              />
+              <Button variant="outline" onClick={() => setIsEditingBanner(false)}>
+                취소
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className={'flex flex-row items-center gap-6'}>
-        <Image
-          src={project.logoImageUrl || 'https://placehold.co/360x360'}
-          alt={`${project.name} 로고 이미지`}
-          width={360}
-          height={360}
-          className={'h-90pxr w-90pxr rounded-full bg-gray-200 object-cover object-center'}
-        />
+        <div className="group relative">
+          <Image
+            src={project.logoImageUrl || 'https://placehold.co/360x360'}
+            alt={`${project.name} 로고 이미지`}
+            width={360}
+            height={360}
+            className={'h-90pxr w-90pxr rounded-full bg-gray-200 object-cover object-center'}
+          />
+          {isProductOwner && !isEditingLogo && (
+            <button
+              onClick={() => setIsEditingLogo(true)}
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <div className="flex flex-col items-center gap-1 text-white">
+                <PencilIcon className="h-6 w-6" />
+                <span className="text-sm font-medium">수정</span>
+              </div>
+            </button>
+          )}
+          {isEditingLogo && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-xl">
+                <h3 className="text-lg font-bold">로고 이미지 변경</h3>
+                <FileUploader
+                  accept="image/*"
+                  maxSize={5 * 1024 * 1024}
+                  buttonText="새 로고 업로드"
+                  onUploadComplete={(url) => handleImageUpdate('logo', url)}
+                />
+                <Button variant="outline" onClick={() => setIsEditingLogo(false)}>
+                  취소
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
         {/*프로젝트명*/}
         <div className={'text-30pxr flex flex-col items-start justify-start gap-2'}>
           <span className="max-w-full flex-grow-1 font-bold break-words">{project.name}</span>
-          <span className="text-muted-foreground mt-auto mb-2 min-w-0 flex-grow text-2xl break-words">
+          <span className="text-muted-foreground mt-auto mb-2 min-w-0 flex-grow text-2xl break-words whitespace-pre-line">
             {project.description}
           </span>
         </div>
