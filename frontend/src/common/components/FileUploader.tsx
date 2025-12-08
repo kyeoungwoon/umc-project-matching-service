@@ -99,17 +99,27 @@ export function FileUploader({
     }
 
     // 파일 타입 검증 (선택적)
-    if (accept) {
+    if (accept && accept !== '*') {
       const acceptedTypes = accept.split(',').map((type) => type.trim());
+
       const isAccepted = acceptedTypes.some((acceptedType) => {
+        // 1. 확장자 기반 검증 (.pdf, .doc 등)
         if (acceptedType.startsWith('.')) {
           return file.name.toLowerCase().endsWith(acceptedType.toLowerCase());
         }
+
+        // 2. MIME type 카테고리 검증 (image/*, video/* 등)
         if (acceptedType.endsWith('/*')) {
           const category = acceptedType.split('/')[0];
-          return file.type.startsWith(category);
+          return file.type.startsWith(category + '/');
         }
-        return file.type === acceptedType;
+
+        // 3. 정확한 MIME type 검증 (image/png, application/pdf 등)
+        if (acceptedType.includes('/')) {
+          return file.type === acceptedType;
+        }
+
+        return false;
       });
 
       if (!isAccepted) {

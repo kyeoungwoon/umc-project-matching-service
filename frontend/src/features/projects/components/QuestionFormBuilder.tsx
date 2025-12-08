@@ -24,9 +24,11 @@ const formSchema = z.object({
       questionNo: z.number(),
       title: z.string().min(1, '질문 제목을 입력해주세요.'),
       description: z.string().optional(),
-      type: z.enum(QuestionTypeEnum),
+      type: z.enum(['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'SUBJECTIVE', 'FILE']),
       options: z.array(z.string().min(1, '선택지를 입력해주세요.')),
       required: z.boolean(),
+      fileAccept: z.string().optional(),
+      fileMaxSize: z.number().optional(),
     }),
   ),
 });
@@ -99,6 +101,8 @@ export const QuestionFormBuilder = ({ onSubmit, initialData }: QuestionFormBuild
                     type: QuestionTypeEnum.SUBJECTIVE as QuestionType,
                     required: false,
                     options: [],
+                    fileAccept: undefined,
+                    fileMaxSize: undefined,
                   })
                 }
               >

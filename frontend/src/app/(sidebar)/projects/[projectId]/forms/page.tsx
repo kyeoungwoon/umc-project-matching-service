@@ -95,6 +95,7 @@ const ProjectFormsPage = () => {
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-6">
       {/* Header Section */}
+      {/*hover시 배너 이미지 변경 구현을 위한 group relative*/}
       <div className="group relative">
         <Image
           src={project.bannerImageUrl || 'https://placehold.co/600x400'}
@@ -133,6 +134,7 @@ const ProjectFormsPage = () => {
       </div>
 
       <div className={'flex flex-row items-center gap-6'}>
+        {/*로고 이미지 변경 구현을 위한 group relative*/}
         <div className="group relative">
           <Image
             src={project.logoImageUrl || 'https://placehold.co/360x360'}

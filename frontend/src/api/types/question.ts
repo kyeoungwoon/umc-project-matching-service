@@ -14,6 +14,8 @@ export interface ApplicationFormQuestion {
   options: string[];
   required: boolean;
   deleted: boolean;
+  fileAccept?: string;
+  fileMaxSize?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,6 +27,8 @@ export interface QuestionItem {
   type: QuestionType;
   options: string[];
   required: boolean;
+  fileAccept?: string;
+  fileMaxSize?: number;
 }
 
 export interface ApplicationFormQuestionCreateRequest {
@@ -35,6 +39,8 @@ export interface ApplicationFormQuestionCreateRequest {
   type: QuestionType;
   options: string[];
   required: boolean;
+  fileAccept?: string;
+  fileMaxSize?: number;
 }
 
 export interface ApplicationFormQuestionUpdateRequest {
@@ -45,6 +51,8 @@ export interface ApplicationFormQuestionUpdateRequest {
   options: string[];
   required: boolean;
   deleted: boolean;
+  fileAccept?: string;
+  fileMaxSize?: number;
 }
 
 export interface ApplicationFormQuestionBulkCreateRequest {
