@@ -104,11 +104,17 @@ public class ProjectToService {
   }
 
   public void throwIfProjectToFull(Long projectId, ChallengerPart challengerPart) {
+    // id로 프로젝트를 가져옵니다.
     Project project = projectRepository.findById(projectId)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
+
+    // 프로젝트의 TO를 가져옵니다.
     List<ProjectTo> projectTos = projectToRepository.findByProject(project);
+    // 프로젝트의 멤버를 가져옵니다.
     List<ProjectMember> projectMembers = project.getMembers();
 
+    // 프로젝트 TO 들에 대해서 for loop
+    // to와 member를 비교하면서 count
     for (ProjectTo projectTo : projectTos) {
       if (projectTo.getPart() == challengerPart) {
         long currentCount = projectMembers.stream()

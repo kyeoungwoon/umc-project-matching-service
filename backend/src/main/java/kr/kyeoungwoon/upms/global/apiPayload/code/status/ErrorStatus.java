@@ -57,6 +57,8 @@ public enum ErrorStatus implements BaseErrorCode {
   PROJECT_EDIT_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PRJ0006", "PO가 아닌 사용자의 프로젝트 수정 요청입니다."),
   PROJECT_CREATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PRJ0007",
       "생성하고자 하는 지부의 Plan 챌린저이거나, 운영진이여야 프로젝트를 생성할 수 있습니다."),
+  PROJECT_NOT_IN_CHAPTER(HttpStatus.NOT_FOUND, "PRJ0008",
+      "프로젝트가 주어진 지부 소속이 아닙니다."),
 
   // Project Application / Form / Response
   PROJECT_APPLICATION_FORM_NOT_FOUND(HttpStatus.NOT_FOUND, "PRJAPL0001",
