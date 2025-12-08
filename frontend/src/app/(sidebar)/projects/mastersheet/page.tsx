@@ -42,15 +42,21 @@ const TeamMatchingMasterSheet = () => {
       {chapterProjects.map((project) => {
         return (
           <Card className={'mb-6 flex flex-col gap-2 px-4 py-2'} key={project.id}>
-            <div className={'flex flex-row items-end gap-x-2'}>
-              <p className={'text-2xl font-bold'}>{project.name}</p>
-              <p className={'text-gray-600'}>{project.description}</p>
+            {/*<div className={'flex flex-row items-end gap-x-2'}>*/}
+            {/*<p className={'text-gray-600'}>{project.description}</p>*/}
+            {/*</div>*/}
+            <div className={'flex flex-row items-center gap-x-1'}>
+              <p className={'mr-5 text-2xl font-bold'}>{project.name}</p>
+              <span>{project.productOwnerSchool}</span>
+              <span>
+                {project.productOwnerNickname}/{project.productOwnerName}
+              </span>
             </div>
             <Separator />
             {project.projectMembers.length > 0 ? (
-              Object.entries(filterByPart(project.projectMembers)).map(([part, members]) => {
+              Object.entries(filterByPart(project.projectMembers)).map(([part, members], idx) => {
                 return (
-                  <div className={'flex flex-row gap-x-2'}>
+                  <div className={'flex flex-row gap-x-2'} key={idx}>
                     <span className={'text-lg font-bold'}>{parsePart(part as ChallengerPart)}</span>
                     {members.map((member) => {
                       return (
