@@ -1,5 +1,8 @@
 application-*.yml
 api-spec.json
+.run
+.vscode
+.idea
 
 logs/
 *.log
