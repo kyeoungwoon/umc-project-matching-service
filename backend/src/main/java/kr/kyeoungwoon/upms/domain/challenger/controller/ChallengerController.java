@@ -16,6 +16,7 @@ import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.CentralAdminOnly;
 import kr.kyeoungwoon.upms.security.annotation.Public;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,7 +80,8 @@ public class ChallengerController {
     return ApiResponse.onSuccess(challengerService.create(body));
   }
 
-  @CentralAdminOnly
+  //  @CentralAdminOnly
+  @Profile("local | dev")
   @Operation(summary = "대량 회원가입", description = "여러 챌린저를 한 번에 등록합니다 (bulk insert)")
   @Public
   @PostMapping("/register/bulk")

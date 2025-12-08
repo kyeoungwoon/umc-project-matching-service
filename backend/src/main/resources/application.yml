@@ -77,6 +77,20 @@ spring:
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+    hikari:
+      auto-commit: true
+
+      # Connection 유효성 검사
+      connection-test-query: SELECT 1
+      validation-timeout: 3000
+
+      maximum-pool-size: 10
+      minimum-idle: 5
+      max-lifetime: 1800000
+
+      # Connection 수명 제한 (재사용 문제 방지)
+      connection-timeout: 30000
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -85,6 +99,12 @@ spring:
       hibernate:
         format_sql: true
         # dialect는 명시가 불필요해서 생략
+        jdbc:
+          use_scrollable_resultset: false
+          batch_size: 0
+          # 아래 설정하면 터짐
+#        query:
+#          plan_cache_max_size: 0
 
 springdoc:
   swagger-ui:
