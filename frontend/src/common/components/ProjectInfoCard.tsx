@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@styles/components/ui/button';
@@ -208,6 +209,15 @@ const ProjectInfoCard = ({
           })}
         </div>
 
+        {/*{isAdmin && (*/}
+        {/*  <Button*/}
+        {/*    variant={'destructive'}*/}
+        {/*    className={'h-10 w-full px-4 text-base'}*/}
+        {/*    onClick={() => router.push(ROUTES.ADMIN.PROJECT_EDIT(id))}*/}
+        {/*  >*/}
+        {/*    [운영진] 프로젝트 수정하기*/}
+        {/*  </Button>*/}
+        {/*)}*/}
         {(isProductOwner || isAdmin) && (
           <Button
             variant={'outline'}
@@ -223,7 +233,8 @@ const ProjectInfoCard = ({
             variant={'default'}
             className={'h-full flex-1 text-base'}
           >
-            Notion에서 보기
+            <ExternalLink className="mr-1 h-3 w-3" />
+            Notion 기획안
           </Button>
           <Button
             onClick={handleApplyClick}

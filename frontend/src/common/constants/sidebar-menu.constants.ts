@@ -5,7 +5,9 @@ import {
   FileUserIcon,
   FolderOpen,
   HomeIcon,
+  ListCheckIcon,
   RectangleEllipsisIcon,
+  SearchIcon,
   Settings,
   SheetIcon,
   ShieldUserIcon,
@@ -123,6 +125,18 @@ const ALL_MENUS: SidebarMenus[] = [
         url: ROUTES.ADMIN.MATCHING_ROUNDS,
         icon: SquarePenIcon,
         isVisible: requiresMasterRole,
+      },
+      {
+        title: '챌린저 검색 및 관리',
+        url: ROUTES.ADMIN.CHALLENGER,
+        icon: SearchIcon,
+        isVisible: requiresAdminRole,
+      },
+      {
+        title: '프로젝트 관리',
+        url: ROUTES.ADMIN.PROJECTS,
+        icon: ListCheckIcon,
+        isVisible: requiresAdminRole,
       },
       {
         title: '프로젝트 생성',

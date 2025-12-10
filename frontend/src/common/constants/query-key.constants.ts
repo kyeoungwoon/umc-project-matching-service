@@ -69,6 +69,9 @@ export const queryKeyStore = createQueryKeyStore({
   s3: {
     file: (fileId: number) => [fileId],
   },
+  admin: {
+    challengerSearch: (name: string) => ['search', name],
+  },
 });
 
 // 프로젝트 지원 Query Keys
@@ -190,4 +193,11 @@ export const s3QueryKeys = {
   all: queryKeyStore.s3._def,
   files: () => queryKeyStore.s3.file._def,
   file: (fileId: number) => queryKeyStore.s3.file(fileId).queryKey,
+};
+
+// 관리자 Query Keys
+export const adminQueryKeys = {
+  all: queryKeyStore.admin._def,
+  challengerSearches: () => queryKeyStore.admin.challengerSearch._def,
+  challengerSearch: (name: string) => queryKeyStore.admin.challengerSearch(name).queryKey,
 };
