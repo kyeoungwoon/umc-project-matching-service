@@ -65,8 +65,8 @@ const EXTERNAL_LINKS = {
   GOOGLE_FORM: 'https://forms.gle/KNamMGSzk6r166mg6',
   MASTER_SHEET:
     'https://docs.google.com/spreadsheets/d/1L6tEzM3KVizPdI_e7tIlEDsXpLOuZtispyfJCQzXeiM/edit?gid=445694956#gid=445694956',
-  LEO_IDEAS:
-    'https://makeus-challenge.notion.site/9th-UMC-Leo-IDEAS-25ab57f4596b810fb951c6b370db4cf7',
+  IDEAS:
+    'https://makeus-challenge.notion.site/25ab57f4596b80669fc7e5e9461651b2?v=25ab57f4596b819a9c11000c000a515d',
   KAKAO_TALK_LINK: 'https://open.kakao.com/o/sBNfZS4h',
 } as const;
 
@@ -168,9 +168,9 @@ const ALL_MENUS: SidebarMenus[] = [
         isExternal: true,
       },
       {
-        title: '9th Leo IDEAS',
+        title: '9th UMC IDEAS',
         icon: SparklesIcon,
-        url: EXTERNAL_LINKS.LEO_IDEAS,
+        url: EXTERNAL_LINKS.IDEAS,
         isExternal: true,
       },
       {
