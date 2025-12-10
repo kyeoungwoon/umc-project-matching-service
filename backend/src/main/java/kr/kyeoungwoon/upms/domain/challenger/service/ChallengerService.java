@@ -193,6 +193,13 @@ public class ChallengerService {
     challenger.changePassword(passwordEncoder.encode(request.newPassword()));
   }
 
+  public List<ChallengerDto.Response> findChallengerByName(String name) {
+
+    return challengerRepository.findByNameContaining(name)
+        .stream().map(this::toResponse)
+        .toList();
+  }
+
   private ChallengerDto.Response toResponse(Challenger challenger) {
     // Chapter 정보 조회
     var chapter = chapterRepository.findByChallengerId(challenger.getId())
