@@ -152,7 +152,7 @@ export function FileUploader({
 
       onUploadComplete(result.cdnUrl);
     } catch (error) {
-      console.error('파일 업로드 실패:', error);
+      // console.error('파일 업로드 실패:', error);
       toast.error('파일 업로드 실패', {
         description: '파일을 업로드하는 중 오류가 발생했습니다.',
       });

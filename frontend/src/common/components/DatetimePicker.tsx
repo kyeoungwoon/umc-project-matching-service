@@ -62,7 +62,13 @@ export const DatetimePicker = ({ date, onDateChange }: DatetimePickerProps) => {
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" id="date-picker" className="w-32 justify-between font-normal">
-              {date ? date.toLocaleDateString() : '날짜 선택'}
+              {date
+                ? date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })
+                : '날짜 선택'}
               <ChevronDownIcon />
             </Button>
           </PopoverTrigger>

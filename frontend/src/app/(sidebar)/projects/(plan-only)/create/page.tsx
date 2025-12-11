@@ -130,7 +130,7 @@ const CreateProjectPage = () => {
     if (form.state.isValid) {
       setConfirmDialogOpen(true);
     } else {
-      console.error(form.getAllErrors());
+      // console.error(form.getAllErrors());
       toast.error('올바른 폼을 작성해주세요.');
     }
   };
@@ -388,6 +388,8 @@ const CreateProjectPage = () => {
               id="preview"
               name={form.state.values.name || '프로젝트 이름'}
               description={form.state.values.description || '프로젝트 설명'}
+              productOwnerNickname={user?.info.nickname || ''}
+              productOwnerSchool={user?.info.schoolName || ''}
               productOwnerName={user?.info.name || ''}
               productOwnerId={user?.info.id || ''}
               chapterName={user?.info.chapterName || ''}

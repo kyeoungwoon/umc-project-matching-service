@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
+  boolean existsByIdAndChapterId(Long id, Long chapterId);
+
   /**
    * 특정 Chapter의 프로젝트 목록 조회
    */

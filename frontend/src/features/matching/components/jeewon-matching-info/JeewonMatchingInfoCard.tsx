@@ -1,6 +1,6 @@
 'use client';
 
-import { ClockIcon, DeleteIcon, Trash2Icon } from 'lucide-react';
+import { ClockIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Badge } from '@styles/components/ui/badge';
@@ -33,6 +33,7 @@ const JeewonMatchingInfoCard = ({ data }: { data: ProjectMatchingRoundResponse }
   const now = new Date();
   const startDate = formatDate(data?.startAt);
   const endDate = formatDate(data?.endAt);
+  const decisionDeadline = formatDate(data?.decisionDeadlineAt);
 
   const isActive = now >= new Date(data.startAt) && now <= new Date(data.endAt);
   const isUpcoming = now < new Date(data.startAt);
@@ -99,16 +100,27 @@ const JeewonMatchingInfoCard = ({ data }: { data: ProjectMatchingRoundResponse }
 
         <div className={'flex w-full flex-row justify-between'}>
           {/* 기간 정보 */}
-          <div className="flex flex-row gap-x-2">
-            <div className="flex items-baseline gap-2">
-              <p className="text-lg font-medium">{startDate.date}</p>
-              <p className="text-muted-foreground text-base">{startDate.time}</p>
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-row gap-x-2">
+              <div className="flex items-baseline gap-2">
+                <p className="text-lg font-medium">{startDate.date}</p>
+                <p className="text-muted-foreground text-base">{startDate.time}</p>
+              </div>
+              <span>~</span>
+              <div className="flex items-baseline gap-2">
+                <p className="text-lg font-medium">{endDate.date}</p>
+                <p className="text-muted-foreground text-base">{endDate.time}</p>
+              </div>
             </div>
-            <span>~</span>
-            <div className="flex items-baseline gap-2">
-              <p className="text-lg font-medium">{endDate.date}</p>
-              <p className="text-muted-foreground text-base">{endDate.time}</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ClockIcon className="h-4 w-4" />
+              <span>합/불 결정 마감: </span>
+              <span className="font-medium text-foreground">{decisionDeadline.date}</span>
+              <span className="text-muted-foreground">{decisionDeadline.time}</span>
             </div>
+            {data.description ? (
+              <p className="text-sm text-muted-foreground">{data.description}</p>
+            ) : null}
           </div>
           <div className={'flex flex-row gap-x-1'}>
             {/*<Button variant="outline" className="flex items-center gap-2">*/}

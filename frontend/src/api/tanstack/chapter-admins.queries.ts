@@ -13,10 +13,11 @@ import type {
 import { chapterAdminQueryKeys } from '@common/constants/query-key.constants';
 
 // 챕터 관리자 목록 조회
-export const useGetChapterAdmins = (params?: ChapterAdminListParams) => {
+export const useGetChapterAdmins = (params?: ChapterAdminListParams, enabled = true) => {
   return useQuery({
     queryKey: chapterAdminQueryKeys.list(params),
     queryFn: () => chapterAdminApi.getChapterAdmins(params),
+    enabled,
   });
 };
 

@@ -120,8 +120,8 @@ const AdminDashboard = () => {
         <UpmsHeader section={section} />
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold">지원서가 없습니다</h2>
-            <p className="text-muted-foreground">아직 제출된 지원서가 없습니다.</p>
+            <h2 className="text-2xl font-bold">제출된 지원서가 존재하지 않습니다.</h2>
+            <p className="text-muted-foreground">최소 한 개의 제출된 지원서가 필요합니다.</p>
           </div>
         </div>
       </>

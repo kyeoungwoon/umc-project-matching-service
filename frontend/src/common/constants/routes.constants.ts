@@ -29,5 +29,8 @@ export const ROUTES = {
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
     MATCHING_ROUNDS: '/admin/matching-rounds',
+    PROJECTS: '/admin/project',
+    CHALLENGER: '/admin/challenger',
+    PROJECT_EDIT: (projectId: string) => `/admin/project/${projectId}`,
   },
 } as const;

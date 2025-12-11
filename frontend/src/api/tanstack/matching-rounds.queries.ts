@@ -6,23 +6,32 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { matchingRoundApi } from '@api/axios/matching-rounds.api';
 import {
   ProjectMatchingRoundCreateRequest,
-  ProjectMatchingRoundGetRequest,
   ProjectMatchingRoundUpdateRequest,
 } from '@api/types/matching-round';
 
 import { matchingRoundQueryKeys } from '@common/constants/query-key.constants';
 
-// 매칭 라운드 목록 조회
-export const useGetMatchingRounds = (chapterId?: string, startTime?: Date, endTime?: Date) => {
+type MatchingRoundsFilter = {
+  chapterId?: string;
+  startTime?: Date;
+  endTime?: Date;
+};
+
+// 매칭 라운드 목록 조회 (기간 내 겹치는 라운드 포함)
+export const useGetMatchingRounds = ({ chapterId, startTime, endTime }: MatchingRoundsFilter) => {
+  const params =
+    chapterId && startTime && endTime
+      ? {
+          chapterId,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+        }
+      : undefined;
+
   return useQuery({
-    queryKey: matchingRoundQueryKeys.list(),
-    queryFn: () =>
-      matchingRoundApi.getMatchingRounds({
-        chapterId,
-        startTime: startTime?.toISOString(),
-        endTime: endTime?.toISOString(),
-      }),
-    enabled: !!chapterId,
+    queryKey: matchingRoundQueryKeys.list(params),
+    queryFn: () => matchingRoundApi.getMatchingRoundsByTimeRange(params!),
+    enabled: !!params,
   });
 };
 
@@ -77,7 +86,7 @@ export const useDeleteMatchingRound = () => {
 // 현재 또는 다가오는 매칭 라운드 조회
 export const useGetCurrentOrUpcomingMatchingRound = (chapterId: string, enabled = true) => {
   return useQuery({
-    queryKey: [...matchingRoundQueryKeys.all, 'currentOrClosest', chapterId],
+    queryKey: matchingRoundQueryKeys.currentOrClosest(chapterId),
     queryFn: () => matchingRoundApi.getCurrentOrUpcomingMatchingRound(chapterId),
     enabled,
     retry: false,
@@ -86,10 +95,12 @@ export const useGetCurrentOrUpcomingMatchingRound = (chapterId: string, enabled 
 
 // 현재 또는 다가오는 매칭 라운드 조회
 export const useGetCurrentMatchingRound = (chapterId?: string, enabled = true) => {
+  const isEnabled = enabled && !!chapterId;
+
   return useQuery({
-    queryKey: [...matchingRoundQueryKeys.all, 'current', chapterId],
+    queryKey: matchingRoundQueryKeys.current(chapterId ?? 'disabled'),
     queryFn: () => matchingRoundApi.getCurrentMatchingRound(chapterId!),
-    enabled: enabled && !!chapterId,
+    enabled: isEnabled,
     retry: false,
   });
 };

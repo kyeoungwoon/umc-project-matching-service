@@ -26,6 +26,8 @@ export interface Project {
   description: string;
   productOwnerId: string;
   productOwnerName: string;
+  productOwnerNickname: string;
+  productOwnerSchool: string;
   chapterId: string;
   chapterName: string;
   logoImageUrl: string;

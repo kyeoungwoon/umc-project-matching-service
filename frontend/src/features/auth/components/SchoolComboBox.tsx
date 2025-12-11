@@ -56,29 +56,31 @@ const SchoolComboBox = ({ value, onValueChange }: SchoolComboBoxProps) => {
           <CommandList>
             <CommandEmpty>해당하는 학교가 존재하지 않습니다.</CommandEmpty>
             <CommandGroup>
-              {schools.map((school) => (
-                <CommandItem
-                  key={school.id}
-                  value={school.name}
-                  onSelect={() => {
-                    // 선택된 학교를 다시 선택하면, 빈 값으로 변경
-                    if (value.id === school.id) {
-                      onValueChange({ id: '', name: '' });
-                    } else {
-                      onValueChange(school);
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  <CheckIcon
-                    className={clsx(
-                      'mr-2 h-4 w-4',
-                      value.id === school.id ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                  {school.name}
-                </CommandItem>
-              ))}
+              {schools
+                .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                .map((school) => (
+                  <CommandItem
+                    key={school.id}
+                    value={school.name}
+                    onSelect={() => {
+                      // 선택된 학교를 다시 선택하면, 빈 값으로 변경
+                      if (value.id === school.id) {
+                        onValueChange({ id: '', name: '' });
+                      } else {
+                        onValueChange(school);
+                      }
+                      setOpen(false);
+                    }}
+                  >
+                    <CheckIcon
+                      className={clsx(
+                        'mr-2 h-4 w-4',
+                        value.id === school.id ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    {school.name}
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </CommandList>
         </Command>

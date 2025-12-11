@@ -6,7 +6,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import kr.kyeoungwoon.upms.domain.project.dto.ProjectDto;
 import kr.kyeoungwoon.upms.domain.project.service.ProjectService;
+import kr.kyeoungwoon.upms.domain.projectApplication.dto.ProjectApplicationDto;
+import kr.kyeoungwoon.upms.domain.projectApplication.service.ProjectApplicationService;
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
+import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.ChapterLeadOnly;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
   private final ProjectService projectService;
+  private final ProjectApplicationService projectApplicationService;
 
   @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다")
   @PostMapping
@@ -76,5 +80,21 @@ public class ProjectController {
   public ApiResponse<Void> deleteProject(@PathVariable Long id) {
     projectService.delete(id);
     return ApiResponse.onSuccess(null);
+  }
+
+  @Operation(summary = "최소 선발 인원 조회", description = "프로젝트에서 매칭 차수와 파트에 따라서 최소 선발 인원이 몇 명인지 조회합니다.")
+  @GetMapping("/{projectId}/min-selection")
+  public ApiResponse<ProjectApplicationDto.MinSelectionResponse> getMinSelectionInfo(
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "챌린저 파트") @RequestParam ChallengerPart part,
+      @Parameter(description = "매칭 차수 ID") @RequestParam Long matchingRoundId,
+      @PathVariable Long projectId) {
+
+    // 해당 프로젝트의 PO 또는 지부 운영진인지 확인
+    projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
+        projectService.findById(projectId).chapterId(), projectId);
+
+    return ApiResponse.onSuccess(
+        projectApplicationService.getMinSelectionInMatchingRound(projectId, part, matchingRoundId));
   }
 }

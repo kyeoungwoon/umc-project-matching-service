@@ -59,6 +59,14 @@ public class ProjectService {
     return toResponse(project);
   }
 
+  public void throwIfProjectNotBelongsToChapter(Long projectId, Long chapterId) {
+    if (projectRepository.existsByIdAndChapterId(projectId, chapterId)) {
+      return;
+    }
+
+    throw new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_IN_CHAPTER);
+  }
+
   /**
    * 프로젝트 목록 조회
    *
@@ -164,6 +172,8 @@ public class ProjectService {
         .description(project.getDescription())
         .productOwnerId(project.getProductOwner().getId())
         .productOwnerName(project.getProductOwner().getName())
+        .productOwnerNickname(project.getProductOwner().getNickname())
+        .productOwnerSchool(project.getProductOwner().getSchool().getName())
         .chapterId(project.getChapter().getId())
         .chapterName(project.getChapter().getName())
         .logoImageUrl(project.getLogoImageUrl())

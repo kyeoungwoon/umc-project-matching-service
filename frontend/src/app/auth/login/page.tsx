@@ -79,14 +79,14 @@ const LoginForm = () => {
   });
 
   return (
-    <div>
+    <div className="flex min-h-screen w-full items-center justify-center p-4">
       <form
         onSubmit={async (e) => {
           e.preventDefault();
           e.stopPropagation();
           await form.handleSubmit();
         }}
-        className="min-w-md"
+        className="w-full max-w-md space-y-6"
       >
         <FieldGroup>
           {/* ...existing code... */}

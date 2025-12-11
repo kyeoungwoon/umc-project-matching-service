@@ -50,7 +50,19 @@ public class ProjectMatchingRound extends BaseEntity {
   @Column(name = "end_at", nullable = false)
   private Instant endAt;
 
+  @Column(name = "decision_deadline_at", nullable = false)
+  private Instant decisionDeadlineAt;
+  
+  @Builder.Default
+  @Column(name = "is_auto_decision_executed", nullable = false)
+  private Boolean isAutoDecisionExecuted = false;
+
+
   @Builder.Default
   @OneToMany(mappedBy = "matchingRound", fetch = FetchType.LAZY)
   private List<ProjectApplication> applications = new ArrayList<>();
+
+  public void markAutoDecisionExecuted() {
+    this.isAutoDecisionExecuted = true;
+  }
 }

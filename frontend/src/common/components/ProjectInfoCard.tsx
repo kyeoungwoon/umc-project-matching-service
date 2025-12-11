@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@styles/components/ui/button';
@@ -30,12 +31,6 @@ import {
 import DefaultSkeleton from '@common/components/DefaultSkeleton';
 
 import { useGetUser } from '@features/auth/hooks/useAuthStore';
-
-export interface ProjectPartAndTo {
-  part: string;
-  currentTo: number;
-  maxTo: number;
-}
 
 export enum ProjectCardMode {
   EDIT = 'edit',
@@ -87,6 +82,11 @@ const ProjectInfoCard = ({
     // props.link 로 새로운 창을 띄워준다
     if (notionLink) {
       window.open(notionLink, '_blank');
+    } else {
+      toast.error('프로젝트 기획안 링크가 없습니다.', {
+        position: 'top-center',
+        description: '해당 프로젝트의 PO가 기획안 링크를 등록하지 않았습니다.',
+      });
     }
   };
 
@@ -106,7 +106,7 @@ const ProjectInfoCard = ({
           toast.error(`프로젝트 수정에 실패했습니다.`, {
             description: error.message,
           });
-          console.error(error);
+          // console.error(error);
         },
       },
     );
@@ -124,19 +124,19 @@ const ProjectInfoCard = ({
         <div className={'flex flex-col gap-y-3'}>
           <span>프로젝트 제목</span>
           <Input
-            value={editedProject.name}
+            value={editedProject.name || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, title: e.target.value }))}
             className="text-xl font-bold"
           />
           <span>프로젝트 설명</span>
           <Textarea
-            value={editedProject.description}
+            value={editedProject.description || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, description: e.target.value }))}
             className="text-muted-foreground mb-2 text-lg"
           />
           <span>프로젝트 기획안</span>
           <Input
-            value={editedProject.notionLink}
+            value={editedProject.notionLink || ''}
             onChange={(e) => setEditedProject((prev) => ({ ...prev, link: e.target.value }))}
             className="text-muted-foreground mb-2 text-lg"
           />
@@ -203,6 +203,15 @@ const ProjectInfoCard = ({
           })}
         </div>
 
+        {/*{isAdmin && (*/}
+        {/*  <Button*/}
+        {/*    variant={'destructive'}*/}
+        {/*    className={'h-10 w-full px-4 text-base'}*/}
+        {/*    onClick={() => router.push(ROUTES.ADMIN.PROJECT_EDIT(id))}*/}
+        {/*  >*/}
+        {/*    [운영진] 프로젝트 수정하기*/}
+        {/*  </Button>*/}
+        {/*)}*/}
         {(isProductOwner || isAdmin) && (
           <Button
             variant={'outline'}
@@ -218,7 +227,8 @@ const ProjectInfoCard = ({
             variant={'default'}
             className={'h-full flex-1 text-base'}
           >
-            Notion에서 보기
+            <ExternalLink className="mr-1 h-3 w-3" />
+            Notion 기획안
           </Button>
           <Button
             onClick={handleApplyClick}

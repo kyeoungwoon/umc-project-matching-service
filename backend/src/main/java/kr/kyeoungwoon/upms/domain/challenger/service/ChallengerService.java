@@ -106,6 +106,7 @@ public class ChallengerService {
     Challenger challenger = challengerRepository.findByStudentIdAndSchoolIdAndGisu(
             request.studentId(), request.schoolId(), request.gisu())
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
+            // 없으면 에러
             ErrorStatus.CHALLENGER_INVALID_CREDENTIALS));
 
     // 비밀번호 검증
@@ -191,6 +192,13 @@ public class ChallengerService {
 
     // 새 비밀번호 암호화 및 저장
     challenger.changePassword(passwordEncoder.encode(request.newPassword()));
+  }
+
+  public List<ChallengerDto.Response> findChallengerByName(String name) {
+
+    return challengerRepository.findByNameContaining(name)
+        .stream().map(this::toResponse)
+        .toList();
   }
 
   private ChallengerDto.Response toResponse(Challenger challenger) {

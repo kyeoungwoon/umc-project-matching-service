@@ -21,6 +21,21 @@ export const useGetProjectTos = (projectId?: string) => {
   });
 };
 
+// 프로젝트 TO 단건 생성
+export const useCreateProjectTo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: ProjectToCreateRequest) => projectToApi.createProjectTo(request),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: projectToQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: projectQueryKeys.list(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: projectQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: projectQueryKeys.detail(variables.projectId) });
+    },
+  });
+};
+
 // 프로젝트 TO 일괄 생성
 export const useCreateProjectTosBulk = () => {
   const queryClient = useQueryClient();

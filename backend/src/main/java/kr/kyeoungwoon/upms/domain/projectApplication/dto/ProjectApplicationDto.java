@@ -196,4 +196,16 @@ public class ProjectApplicationDto {
   ) {
 
   }
+
+
+  @Builder
+  @Schema(name = "MinSelectionResponse", description = "최소 선발 인원 응답")
+  public record MinSelectionResponse(
+      @Schema(description = "최소 선발 인원", example = "5")
+      Long minSelectionCount,
+      @Schema(description = "사유", example = "최소 선발 인원에 대한 설명")
+      String reason
+  ) {
+
+  }
 }

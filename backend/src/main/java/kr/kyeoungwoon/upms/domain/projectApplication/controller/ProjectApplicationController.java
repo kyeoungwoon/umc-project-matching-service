@@ -57,6 +57,8 @@ public class ProjectApplicationController {
       @RequestBody ProjectApplicationDto.SubmitRequest request) {
 
     Long challengerChapterId = chapterService.findByChallengerId(userPrincipal.challengerId()).id();
+
+    // 현재 매칭 라운드 조회 : 여기서도 없으면 터짐!
     Long currentMatchingRoundId = projectMatchingRoundService.findCurrent(
         challengerChapterId).id();
 
@@ -65,6 +67,8 @@ public class ProjectApplicationController {
 
     ChallengerPart applicantPart = challengerService.findById(userPrincipal.challengerId()).part();
 
+    // 챌린저가 프로젝트가 속한 챕터의 멤버인지 확인
+    projectService.throwIfProjectNotBelongsToChapter(applicationProjectId, challengerChapterId);
     // 지원하는 프로젝트에 TO가 없는 경우
     projectToService.throwIfProjectToFull(applicationProjectId, applicantPart);
     // 이미 다른 프로젝트의 멤버인 경우

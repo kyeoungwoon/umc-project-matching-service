@@ -4,8 +4,11 @@ import {
   FilePenIcon,
   FileUserIcon,
   FolderOpen,
+  HelpCircleIcon,
   HomeIcon,
+  ListCheckIcon,
   RectangleEllipsisIcon,
+  SearchIcon,
   Settings,
   SheetIcon,
   ShieldUserIcon,
@@ -65,9 +68,11 @@ const EXTERNAL_LINKS = {
   GOOGLE_FORM: 'https://forms.gle/KNamMGSzk6r166mg6',
   MASTER_SHEET:
     'https://docs.google.com/spreadsheets/d/1L6tEzM3KVizPdI_e7tIlEDsXpLOuZtispyfJCQzXeiM/edit?gid=445694956#gid=445694956',
-  LEO_IDEAS:
-    'https://makeus-challenge.notion.site/9th-UMC-Leo-IDEAS-25ab57f4596b810fb951c6b370db4cf7',
+  IDEAS:
+    'https://makeus-challenge.notion.site/25ab57f4596b80669fc7e5e9461651b2?v=25ab57f4596b819a9c11000c000a515d',
   KAKAO_TALK_LINK: 'https://open.kakao.com/o/sBNfZS4h',
+  UPMS_NOTION:
+    'https://chunganguniv.notion.site/UPMS-2c639ff67177808cac44f795625ddffd?source=copy_link',
 } as const;
 
 // 📋 메뉴 정의 (단일 배열로 통합)
@@ -125,6 +130,18 @@ const ALL_MENUS: SidebarMenus[] = [
         isVisible: requiresMasterRole,
       },
       {
+        title: '챌린저 검색 및 관리',
+        url: ROUTES.ADMIN.CHALLENGER,
+        icon: SearchIcon,
+        isVisible: requiresMasterRole,
+      },
+      {
+        title: '프로젝트 관리',
+        url: ROUTES.ADMIN.PROJECTS,
+        icon: ListCheckIcon,
+        isVisible: requiresAdminRole,
+      },
+      {
         title: '프로젝트 생성',
         url: ROUTES.PROJECTS.CREATE,
         icon: SquarePlusIcon,
@@ -168,9 +185,15 @@ const ALL_MENUS: SidebarMenus[] = [
         isExternal: true,
       },
       {
-        title: '9th Leo IDEAS',
+        title: '9th UMC IDEAS',
         icon: SparklesIcon,
-        url: EXTERNAL_LINKS.LEO_IDEAS,
+        url: EXTERNAL_LINKS.IDEAS,
+        isExternal: true,
+      },
+      {
+        title: 'UPMS 사용방법',
+        icon: HelpCircleIcon,
+        url: EXTERNAL_LINKS.UPMS_NOTION,
         isExternal: true,
       },
       {

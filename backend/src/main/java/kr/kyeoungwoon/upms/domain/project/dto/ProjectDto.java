@@ -60,6 +60,10 @@ public class ProjectDto {
       Long productOwnerId,
       @Schema(description = "프로덕트 오너 이름", example = "정보운")
       String productOwnerName,
+      @Schema(description = "프로덕트 오너 닉네임", example = "보니")
+      String productOwnerNickname,
+      @Schema(description = "프로덕트 오너 학교", example = "중앙대학교")
+      String productOwnerSchool,
       @Schema(description = "지부 ID", example = "1")
       Long chapterId,
       @Schema(description = "지부명", example = "Ain")

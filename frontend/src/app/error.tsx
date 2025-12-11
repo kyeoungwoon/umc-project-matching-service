@@ -36,7 +36,7 @@ export default function Error({
 
   useEffect(() => {
     // 에러 로깅
-    console.error('Error occurred:', error);
+    // console.error('Error occurred:', error);
   }, [error]);
 
   const handleGoHome = () => {

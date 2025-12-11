@@ -22,6 +22,17 @@ class MatchingRoundApi extends BaseApi {
   }
 
   /**
+   * 기간으로 매칭 라운드 목록 조회 (겹치는 라운드 포함)
+   */
+  async getMatchingRoundsByTimeRange(
+    request: ProjectMatchingRoundGetRequest,
+  ): Promise<ProjectMatchingRoundResponse[]> {
+    return this.get<ProjectMatchingRoundResponse[]>('/v1/matching-rounds/by-time-range', {
+      params: { ...request },
+    });
+  }
+
+  /**
    * 매칭 라운드 단건 조회
    */
   async getMatchingRound(id: string): Promise<ProjectMatchingRoundResponse> {
@@ -66,7 +77,7 @@ class MatchingRoundApi extends BaseApi {
   }
 
   /**
-   * 현재 또는 다가오는 매칭 라운드 조회
+   * 현재 매칭 라운드 조회
    */
   async getCurrentMatchingRound(chapterId: string): Promise<ProjectMatchingRoundResponse> {
     return this.get<ProjectMatchingRoundResponse>('/v1/matching-rounds/current', {

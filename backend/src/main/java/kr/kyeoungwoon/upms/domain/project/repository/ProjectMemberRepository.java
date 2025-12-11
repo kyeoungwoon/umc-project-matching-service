@@ -1,9 +1,11 @@
 package kr.kyeoungwoon.upms.domain.project.repository;
 
+import java.util.List;
 import java.util.Optional;
 import kr.kyeoungwoon.upms.domain.challenger.entity.Challenger;
 import kr.kyeoungwoon.upms.domain.project.entity.Project;
 import kr.kyeoungwoon.upms.domain.project.entity.ProjectMember;
+import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,9 +29,9 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Lo
   /**
    * 특정 프로젝트의 특정 파트 멤버 수 조회
    */
-  long countByProjectAndChallengerPart(Project project,
-      kr.kyeoungwoon.upms.global.enums.ChallengerPart part);
+  long countByProjectAndChallengerPart(Project project, ChallengerPart part);
 
+  List<ProjectMember> findAllByProjectAndChallengerPart(Project project, ChallengerPart part);
 
   /**
    * 특정 Challenger가 속한 활성 프로젝트 멤버 조회
