@@ -152,9 +152,10 @@ public class ProjectMatchingRoundAutoDecisionService {
       // 만약에 디자인 파트 TO가 1명인 경우 최소 선발 인원 없음
       if (maxTo == 1) {
         minSelectCount = 0;
+      } else {
+        // 디자인 파트 TO가 2명 이상인 경우, 최소 한 명은 선발하여야 함
+        minSelectCount = 1;
       }
-      // 디자인 파트 TO가 2명 이상인 경우, 최소 한 명은 선발하여야 함
-      minSelectCount = 1;
     }
     // 개발자 매칭의 경우
     else {
