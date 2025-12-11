@@ -23,17 +23,25 @@ export const useIsPlanChallenger = (planId?: string) => {
 
 export const useGetChallengerChapterRoles = () => {
   const user = useGetUser();
+  const challengerId = user?.info?.id;
+  const hasChallenger = !!challengerId;
 
-  const { data, isLoading } = useGetChapterAdmins({
-    challengerId: user?.info.id as string,
-    // chapterId: user?.info.chapterId as string,
-  });
+  // challengerId가 없는 경우 로딩 상태로 간주하여 새로고침 시 발생하는 문제 해결
+  const { data, isLoading } = useGetChapterAdmins(
+    challengerId
+      ? {
+          challengerId,
+          // chapterId: user?.info?.chapterId as string,
+        }
+      : undefined,
+    hasChallenger,
+  );
 
-  const roles = data?.map((admin) => admin.role) || [];
+  const roles = hasChallenger ? data?.map((admin) => admin.role) || [] : [];
 
   return {
     roles, // null이면 권한 없음
-    isLoading: isLoading,
+    isLoading: isLoading || !hasChallenger,
   };
 };
 
