@@ -40,8 +40,6 @@ export const ApplicationForm = ({
   // Always call all hooks unconditionally
   const { data: questions, isLoading: isQuestionLoading } = useGetQuestions(formId);
   const { mutate: createApplication, isPending: isApplicationPending } = useCreateApplication();
-  const { mutate: createBulkApplicationResponse, isPending: isApplicationResponsePending } =
-    useCreateBulkApplicationResponse();
 
   // Memoize default values to prevent unnecessary re-renders
   const defaultAnswers = useMemo(() => {
@@ -91,7 +89,7 @@ export const ApplicationForm = ({
           responses: value.answers,
         },
         {
-          onSuccess: (data) => {
+          onSuccess: () => {
             toast.success('지원이 완료되었습니다.', {
               richColors: true,
               position: 'top-center',
@@ -165,12 +163,8 @@ export const ApplicationForm = ({
         <QuestionField key={question.id} tanstackForm={form} question={question} index={index} />
       ))}
       <div className="flex justify-end">
-        <Button type="submit" disabled={isApplicationPending || isApplicationResponsePending}>
-          {isApplicationPending
-            ? '지원서 생성 중 ...'
-            : isApplicationResponsePending
-              ? '지원서 응답 생성 중 ...'
-              : '지원서 제출하기'}
+        <Button type="submit" disabled={isApplicationPending}>
+          {isApplicationPending ? '지원서 제출 중...' : '지원서 제출하기'}
         </Button>
       </div>
     </form>
