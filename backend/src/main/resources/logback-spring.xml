@@ -2,6 +2,8 @@
 <configuration>
   <!-- Spring Boot의 기본 Logback 설정 포함 (콘솔 출력 패턴, 색상 등) -->
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  
 
   <!-- 로그 파일의 기본 경로 및 이름 정의 -->
   <property name="LOG_FILE" value="logs/upms"/>
@@ -47,6 +49,7 @@
        level="INFO": INFO 레벨 이상(INFO, WARN, ERROR)의 로그만 기록
        appender-ref: FILE Appender를 사용하여 파일에 로그 기록 -->
   <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
 </configuration>
