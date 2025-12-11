@@ -8,9 +8,15 @@ import kr.kyeoungwoon.upms.domain.challenger.dto.ChallengerDto;
 import kr.kyeoungwoon.upms.domain.challenger.service.ChallengerService;
 import kr.kyeoungwoon.upms.domain.project.dto.ProjectMemberDto;
 import kr.kyeoungwoon.upms.domain.project.service.ProjectMemberService;
+import kr.kyeoungwoon.upms.domain.project.service.ProjectService;
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
+import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
+import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
+import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
+import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.ChapterLeadOnly;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +34,7 @@ public class AdminController {
 
   private final ChallengerService challengerService;
   private final ProjectMemberService projectMemberService;
+  private final ProjectService projectService;
 
   @Operation(summary = "이름으로 챌린저 검색")
   @GetMapping("/challenger")
@@ -40,7 +47,21 @@ public class AdminController {
   @Operation(summary = "관리자 권한으로 프로젝트 멤버 추가")
   @PostMapping("/project-member")
   public ApiResponse<ProjectMemberDto.Response> addProjectMember(
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectMemberDto.CreateRequest request) {
+    // 추가하고자 하는 프로젝트의 chapter랑 운영진의 chater, 그리고 추가하고자 하는 챌린저의 chapter가 모두 같아야 함
+    long adminChapterId = challengerService.findById(userPrincipal.challengerId()).chapterId();
+    long targetChallengerChapterId = challengerService.findById(request.challengerId()).chapterId();
+
+    if (adminChapterId != targetChallengerChapterId) {
+      throw new DomainException(DomainType.ADMIN, ErrorStatus.ADMIN_NOT_YOUR_CHAPTER);
+    }
+
+    long targetProjectChapterId = projectService.findById(request.projectId()).chapterId();
+    if (adminChapterId != targetProjectChapterId) {
+      throw new DomainException(DomainType.ADMIN, ErrorStatus.ADMIN_NOT_YOUR_CHAPTER);
+    }
+
     return ApiResponse.onSuccess(projectMemberService.create(request));
   }
 

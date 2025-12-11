@@ -120,7 +120,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
   // Infra - File
   FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "INFRA-0001", "파일이 존재하지 않습니다."),
-  FILE_NOT_UPLOADED(HttpStatus.BAD_REQUEST, "INFRA-0002", "아직 파일이 업로드되지 않았습니다.");
+  FILE_NOT_UPLOADED(HttpStatus.BAD_REQUEST, "INFRA-0002", "아직 파일이 업로드되지 않았습니다."),
+
+  // ADMIN
+  ADMIN_NOT_YOUR_CHAPTER(HttpStatus.FORBIDDEN, "ADMIN-0001", "해당 지부의 운영진이 아닙니다.");
 
   private final HttpStatus httpStatus;
   private final String code;
