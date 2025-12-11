@@ -144,52 +144,54 @@ const AdminChallengerSearchPage = () => {
   };
 
   return (
-    <div className="container space-y-6 p-6">
-      <UpmsHeader section={section} />
+    <>
+      <div className="container space-y-6 p-6">
+        <UpmsHeader section={section} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>챌린저 검색</CardTitle>
-          <CardDescription>검색할 챌린저의 이름을 입력하세요.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Input
-              placeholder="이름을 입력하세요..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="max-w-sm"
-            />
-            <Button onClick={handleSearch} disabled={searchName.length === 0}>
-              <Search className="mr-2 h-4 w-4" />
-              검색
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {isLoading && <DefaultSkeleton />}
-
-      {!isLoading && searchQuery && challengers && challengers.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>검색 결과</CardTitle>
-            <CardDescription>총 {challengers.length}명의 챌린저를 찾았습니다.</CardDescription>
+            <CardTitle>챌린저 검색</CardTitle>
+            <CardDescription>검색할 챌린저의 이름을 입력하세요.</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={challengers} />
+            <div className="flex gap-2">
+              <Input
+                placeholder="이름을 입력하세요..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="max-w-sm"
+              />
+              <Button onClick={handleSearch} disabled={searchName.length === 0}>
+                <Search className="mr-2 h-4 w-4" />
+                검색
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      )}
 
-      {!isLoading && searchQuery && challengers && challengers.length === 0 && (
-        <Card>
-          <CardContent className="flex h-32 items-center justify-center">
-            <p className="text-muted-foreground">검색 결과가 없습니다.</p>
-          </CardContent>
-        </Card>
-      )}
+        {isLoading && <DefaultSkeleton />}
+
+        {!isLoading && searchQuery && challengers && challengers.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>검색 결과</CardTitle>
+              <CardDescription>총 {challengers.length}명의 챌린저를 찾았습니다.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable columns={columns} data={challengers} />
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && searchQuery && challengers && challengers.length === 0 && (
+          <Card>
+            <CardContent className="flex h-32 items-center justify-center">
+              <p className="text-muted-foreground">검색 결과가 없습니다.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* 프로젝트 배정 Dialog */}
       <AssignProjectDialog
@@ -204,7 +206,7 @@ const AdminChallengerSearchPage = () => {
         open={isRemoveDialogOpen}
         onOpenChange={setIsRemoveDialogOpen}
       />
-    </div>
+    </>
   );
 };
 

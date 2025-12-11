@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 
 import { toast } from 'sonner';
 
-import { SidebarProvider } from '@styles/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger } from '@styles/components/ui/sidebar';
 
 import { ROUTES } from '@common/constants/routes.constants';
 
@@ -33,7 +33,13 @@ const UpmsHomeLayout = ({ children }: { children?: ReactNode }) => {
     <>
       <SidebarProvider>
         <UpmsSideBar />
-        <main className={'w-full'}>{children}</main>
+        <main className={'w-full'}>
+          {/* 모바일 햄버거 메뉴 버튼 */}
+          <div className="bg-background sticky top-0 z-10 border-b p-4 md:hidden">
+            <SidebarTrigger />
+          </div>
+          {children}
+        </main>
       </SidebarProvider>
     </>
   );

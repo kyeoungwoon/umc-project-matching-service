@@ -74,7 +74,7 @@ const UpmsSideBar = () => {
   }
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader className={'m-3 flex items-start'}>
         <UpmsLogo />
       </SidebarHeader>
@@ -113,6 +113,7 @@ const UpmsSideBar = () => {
                     );
                   })}
                 </SidebarMenu>
+                <SidebarMenuItem></SidebarMenuItem>
               </SidebarGroupContent>
             </SidebarGroup>
           );

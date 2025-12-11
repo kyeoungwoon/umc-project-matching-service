@@ -4,6 +4,7 @@ import {
   FilePenIcon,
   FileUserIcon,
   FolderOpen,
+  HelpCircleIcon,
   HomeIcon,
   ListCheckIcon,
   RectangleEllipsisIcon,
@@ -70,6 +71,8 @@ const EXTERNAL_LINKS = {
   IDEAS:
     'https://makeus-challenge.notion.site/25ab57f4596b80669fc7e5e9461651b2?v=25ab57f4596b819a9c11000c000a515d',
   KAKAO_TALK_LINK: 'https://open.kakao.com/o/sBNfZS4h',
+  UPMS_NOTION:
+    'https://chunganguniv.notion.site/UPMS-2c639ff67177808cac44f795625ddffd?source=copy_link',
 } as const;
 
 // 📋 메뉴 정의 (단일 배열로 통합)
@@ -185,6 +188,12 @@ const ALL_MENUS: SidebarMenus[] = [
         title: '9th UMC IDEAS',
         icon: SparklesIcon,
         url: EXTERNAL_LINKS.IDEAS,
+        isExternal: true,
+      },
+      {
+        title: 'UPMS 사용방법',
+        icon: HelpCircleIcon,
+        url: EXTERNAL_LINKS.UPMS_NOTION,
         isExternal: true,
       },
       {
