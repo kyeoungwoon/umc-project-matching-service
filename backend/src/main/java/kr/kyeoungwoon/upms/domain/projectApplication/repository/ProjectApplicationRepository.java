@@ -41,11 +41,24 @@ public interface ProjectApplicationRepository extends JpaRepository<ProjectAppli
       ApplicationStatus status
   );
 
+  // 프로젝트, 파트, 매칭 라운드의 지원서 개수 조회
   long countByFormProjectAndApplicantPartAndMatchingRound(
       Project project,
       ChallengerPart part,
       ProjectMatchingRound matchingRound
   );
+
+  // 이번 차수에 지원한 지원자 목록 조회
+  @Query("SELECT pa.applicant FROM ProjectApplication pa "
+      + "WHERE pa.form.project = :project "
+      + "AND pa.applicant.part = :part "
+      + "AND pa.matchingRound = :matchingRound")
+  List<Challenger> findChallengersByProjectAndPartAndRound(
+      @Param("project") Project project,
+      @Param("part") ChallengerPart part,
+      @Param("matchingRound") ProjectMatchingRound matchingRound
+  );
+
 
   @Query("SELECT pa FROM ProjectApplication pa "
       + "LEFT JOIN FETCH pa.applicationResponses "

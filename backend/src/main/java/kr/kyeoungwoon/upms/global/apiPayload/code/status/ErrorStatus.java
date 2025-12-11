@@ -104,6 +104,9 @@ public enum ErrorStatus implements BaseErrorCode {
       "지원자 수가 TO의 50%를 초과할 때는 TO의 25% 이상을 합격시킨 후에 불합격 처리를 할 수 있습니다."),
   PA_DELETE_AFTER_MATCHING_ROUND_END_NOT_ALLOWED(HttpStatus.FORBIDDEN, "PROJECT-APPLICATION-0019",
       "지원서 철회는 제출된 매칭 차수가 끝나기 전에만 가능합니다."),
+  PA_STATUS_CHANGE_AFTER_DECISION_DEADLINE_NOT_ALLOWED(HttpStatus.FORBIDDEN,
+      "PROJECT-APPLICATION-0020",
+      "합/불 결정 기간이 경과한 이후에는 지원서 상태 변경이 불가능합니다."),
 
 
   // Matching Round

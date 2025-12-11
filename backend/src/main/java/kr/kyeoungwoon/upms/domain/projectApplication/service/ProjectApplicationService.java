@@ -298,6 +298,124 @@ public class ProjectApplicationService {
         .build();
   }
 
+  public ProjectApplicationDto.MinSelectionResponse getMinSelectionInMatchingRound(Long projectId,
+      ChallengerPart challengerPart,
+      Long matchingRoundId) {
+
+    Project project = projectRepository.findById(projectId).orElseThrow(() -> new DomainException(
+        DomainType.PROJECT,
+        ErrorStatus.PROJECT_NOT_FOUND));
+
+    ProjectMatchingRound matchingRound = projectMatchingRoundRepository.findById(matchingRoundId)
+        .orElseThrow(() -> new DomainException(
+            DomainType.PROJECT_MATCHING_ROUND,
+            ErrorStatus.MATCHING_ROUND_NOT_FOUND
+        ));
+
+    // 주어진 파트의 TO 정보 조회
+    ProjectTo projectTo = projectToRepository.findByProject(
+            project)
+        .stream()
+        .filter(to -> to.getPart() == challengerPart)
+        .findFirst()
+        .orElseThrow(() -> new DomainException(DomainType.PROJECT,
+            ErrorStatus.PROJECT_TO_NOT_FOUND));
+
+    int maxTo = projectTo.getToCount();
+
+    log.info("프로젝트 {} 파트 {} - 최대 TO: {}",
+        project.getId(), challengerPart, maxTo);
+
+    List<ProjectMember> currentMembers = projectMemberRepository.findAllByProjectAndChallengerPart(
+        project, challengerPart);
+    List<Challenger> currentMatchingAppliedChallengers = projectApplicationRepository.findChallengersByProjectAndPartAndRound(
+        project, challengerPart, matchingRound);
+
+    // 기존에 팀 멤버였던 사람 수 (현재 매칭 차수가 아닌 차수에서 합격한 사람)
+    // 현재 프로젝트 멤버 중에서, 이번 매칭 차수에서 지원한 사람을 필터링 함 => 이번 차수에서 합격한 사람을 제외하고, 기존 합격자 수
+    long originalTeamMemberCount = currentMembers.stream()
+        .filter(member -> !currentMatchingAppliedChallengers.contains(member.getChallenger()))
+        .count();
+
+    // 매칭 차수에 지원한 총 인원 수
+    long currentMatchingApplicantCount = projectApplicationRepository.countByFormProjectAndApplicantPartAndMatchingRound(
+        project, challengerPart, matchingRound);
+
+    // 매칭 차수에서 합격한 인원 수
+    long currentMatchingConfirmedCount = projectApplicationRepository.countByFormProjectAndApplicantPartAndMatchingRoundAndStatus(
+        project, challengerPart, matchingRound, ApplicationStatus.CONFIRMED);
+
+    // 현재 매칭 차수에 할당된 TO 계산 (최대 TO - 기존 멤버 수)
+    long currentMatchingRoundTo = maxTo - originalTeamMemberCount;
+
+    long half = (long) Math.ceil(currentMatchingRoundTo * 0.5);
+    long quarter = (long) Math.ceil(currentMatchingRoundTo * 0.25);
+
+    // === 디자이너 매칭 로직 ===
+    if (challengerPart == ChallengerPart.DESIGN) {
+      // 최대 TO가 1명인 경우 최소 선발 인원 없음
+      if (currentMatchingApplicantCount <= 1) {
+        return ProjectApplicationDto.MinSelectionResponse
+            .builder()
+            .minSelectionCount(0L)
+            .reason("[디자인 파트] 지원자가 1명 이하인 경우 최소 선발 인원이 존재하지 않습니다. - 매칭 차수 지원 인원 :"
+                + currentMatchingApplicantCount + "명")
+            .build();
+      }
+      // 지원자 2명 이상이면 1명 이상 선택해야 함
+
+      return ProjectApplicationDto.MinSelectionResponse
+          .builder()
+          .minSelectionCount(1L)
+          .reason("[디자인 파트] 지원자가 2명 이상인 경우 최소 1명을 선발해야 합니다. - 매칭 차수 지원 인원: "
+              + currentMatchingApplicantCount + "명")
+          .build();
+    } else {
+      // === 개발자 및 기타 파트 매칭 로직 ===
+      // 지원자 >= TO인 경우: TO의 50% 이상 선택해야 함
+      if (currentMatchingApplicantCount >= currentMatchingRoundTo) {
+        // 이미 현재 차수에서 합격 시킨 인원을 최소 선발 인원에서 뺌
+        long minSelection = Math.max(0L, half - currentMatchingConfirmedCount);
+
+        return ProjectApplicationDto.MinSelectionResponse
+            .builder()
+            .minSelectionCount(minSelection)
+            .reason(
+                "[개발 파트] 지원자 수가 현재 매칭 차수에 부여된 TO 이상인 경우 TO의 50% 이상을 선발하여야 합니다. - 매칭 차수 지원 인원: "
+                    +
+                    currentMatchingApplicantCount + "명, 매칭 차수 TO: " + currentMatchingRoundTo
+                    + "명, 최소 선발 인원: " + half + "명, 추가로 합격시켜야 하는 인원: " + minSelection + "명)")
+            .build();
+      }
+      // 지원자 > TO의 50%인 경우: TO의 25% 이상 선택해야 함
+      else if (currentMatchingApplicantCount > half) {
+        // 이미 현재 차수에서 합격 시킨 인원을 최소 선발 인원에서 뺌
+        long minSelection = Math.max(0L, quarter - currentMatchingConfirmedCount);
+
+        return ProjectApplicationDto.MinSelectionResponse
+            .builder()
+            .minSelectionCount(minSelection)
+            .reason(
+                "[개발 파트] 지원자 수가 현재 매칭 차수에 부여된 TO의 50% 이상인 경우 TO의 25% 이상을 선발하여야 합니다. - 매칭 차수 지원 인원: "
+                    +
+                    currentMatchingApplicantCount + "명, 현재 매칭 차수 TO: " + currentMatchingRoundTo
+                    + "명, 최소 선발 인원: " + quarter + "명, 추가로 합격시켜야 하는 인원: " + minSelection + "명)")
+            .build();
+      }
+      // 지원자 <= TO의 50%인 경우: 제한 없음 (minSelection = 0)
+
+      return ProjectApplicationDto.MinSelectionResponse
+          .builder()
+          .minSelectionCount(0L)
+          .reason(
+              "[개발 파트] 지원자 수가 현재 매칭 차수에 부여된 TO의 50% 미만인 경우 최소 선발 인원이 존재하지 않습니다. - 현재 매칭 차수 지원 인원: "
+                  +
+                  currentMatchingApplicantCount + "명, 현재 매칭 차수 TO: " + currentMatchingRoundTo
+                  + "명, 최소 선발 인원: 0명)")
+          .build();
+    }
+  }
+
   /**
    * 지원서 거절 가능 여부 검증
    *
@@ -416,9 +534,27 @@ public class ProjectApplicationService {
     if (appliedMatchingRound.getEndAt().isAfter(Instant.now())) {
       // 그치만 관리자는 무적임 ~
       if (!isAdmin) {
+        log.info("운영진이 아닌 사용자가 매칭 차수가 종료되지 않은 상태에서 지원서 상태 변경을 요청했습니다. 챌린저 [{}], 매칭 차수 종료일 [{}]",
+            userPrincipal.challengerId(), appliedMatchingRound.getEndAt());
         throw new DomainException(DomainType.PROJECT_APPLICATION,
             ErrorStatus.PROJECT_APPLICATION_STATUS_CHANGE_MATCHING_ROUND_NOT_ENDED);
       }
+      log.info("관리자가 매칭 차수가 종료되지 않은 상태에서 지원서 상태 변경을 진행합니다. 챌린저 [{}], 매칭 차수 종료일 [{}]",
+          userPrincipal.challengerId(), appliedMatchingRound.getEndAt());
+    }
+
+    // 또는 매칭 차수의 합/불 결정 기간이 경과한 경우에도 상태 변경을 허용하지 않음.
+    if (appliedMatchingRound.getDecisionDeadlineAt() != null &&
+        appliedMatchingRound.getDecisionDeadlineAt().isBefore(Instant.now())) {
+      // 그치만 관리자는 무적임 ~
+      if (!isAdmin) {
+        log.info("운영진이 아닌 사용자가 매칭 차수의 합/불 결정 기간이 지난 후에 지원서 상태 변경을 요청했습니다. 챌린저 [{}], 결정 마감일 [{}]",
+            userPrincipal.challengerId(), appliedMatchingRound.getDecisionDeadlineAt());
+        throw new DomainException(DomainType.PROJECT_APPLICATION,
+            ErrorStatus.PA_STATUS_CHANGE_AFTER_DECISION_DEADLINE_NOT_ALLOWED);
+      }
+      log.info("관리자가 매칭 차수의 합/불 결정 기간이 지난 후에 지원서 상태 변경을 진행합니다. 챌린저 [{}], 결정 마감일 [{}]",
+          userPrincipal.challengerId(), appliedMatchingRound.getDecisionDeadlineAt());
     }
 
     // ==========================================
