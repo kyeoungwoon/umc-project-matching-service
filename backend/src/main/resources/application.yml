@@ -1,8 +1,10 @@
 logging:
   file:
     name: logs/upms.log
+
   pattern:
     console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{traceId}]){magenta} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} [%X{traceId}] [%15.15t] %-40.40logger{39} : %m%n" # 파일용 패턴 (색상 제거)
 
   level:
     root: INFO
@@ -80,16 +82,17 @@ spring:
     hikari:
       auto-commit: true
 
-      # Connection 유효성 검사
-      connection-test-query: SELECT 1
-      validation-timeout: 3000
 
-      maximum-pool-size: 10
-      minimum-idle: 5
-      max-lifetime: 1800000
+      maximum-pool-size: 50       # Core * 2 + 여유분
+      minimum-idle: 50            # max와 동일하게 설정 (고정 풀 크기 권장)
 
-      # Connection 수명 제한 (재사용 문제 방지)
-      connection-timeout: 30000
+      # 3. 수명 및 타임아웃
+      max-lifetime: 1800000       # 30분 (기존 유지)
+      connection-timeout: 30000   # 30초 (기존 유지)
+      validation-timeout: 5000    # 5초 (조금 더 여유 있게)
+
+      keepalive-time: 60000       # 1분마다 생존 신고
+
 
   jpa:
     hibernate:

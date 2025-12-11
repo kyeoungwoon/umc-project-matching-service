@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- Spring Boot의 기본 Logback 설정 포함 (콘솔 출력 패턴, 색상 등) -->
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  
+
+  <!-- 로그 파일의 기본 경로 및 이름 정의 -->
+  <property name="LOG_FILE" value="logs/upms"/>
+
+  <!-- 파일 Appender: 날짜별 + 크기별 롤링 정책 적용 -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 현재 활성 로그 파일 경로: logs/upms.log -->
+    <file>${LOG_FILE}.log</file>
+
+    <!-- 롤링 정책: 날짜와 파일 크기 기반으로 로그 파일 분할 -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- 아카이브 파일명 패턴: logs/upms-2024-12-12.0.log.gz
+           %d{yyyy-MM-dd}: 날짜
+           %i: 같은 날 생성된 파일의 인덱스 (0, 1, 2...)
+           .gz: gzip으로 압축 -->
+      <fileNamePattern>${LOG_FILE}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+
+      <!-- 파일 하나의 최대 크기: 50MB 초과 시 새 파일로 분할 -->
+      <maxFileSize>50MB</maxFileSize>
+
+      <!-- 보관 기간: 30일이 지난 로그 파일은 자동 삭제 -->
+      <maxHistory>30</maxHistory>
+
+      <!-- 전체 로그 파일의 최대 용량: 2GB 초과 시 오래된 파일부터 삭제 -->
+      <totalSizeCap>2GB</totalSizeCap>
+    </rollingPolicy>
+
+    <!-- 로그 출력 형식 정의
+         %d{yyyy-MM-dd HH:mm:ss.SSS}: 날짜 및 시간 (밀리초 단위)
+         %-5level: 로그 레벨 (INFO, WARN, ERROR 등, 5자리 좌측 정렬)
+         [%X{traceId}]: MDC에 저장된 traceId (분산 추적용)
+         [%thread]: 스레드 이름
+         %logger{40}: 로거 이름 (최대 40자, 패키지명 축약)
+         %msg: 실제 로그 메시지
+         %n: 개행 문자 -->
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{traceId}] [%thread] %logger{40} : %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <!-- Root Logger 설정
+       level="INFO": INFO 레벨 이상(INFO, WARN, ERROR)의 로그만 기록
+       appender-ref: FILE Appender를 사용하여 파일에 로그 기록 -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+</configuration>
