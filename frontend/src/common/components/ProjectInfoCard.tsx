@@ -32,12 +32,6 @@ import DefaultSkeleton from '@common/components/DefaultSkeleton';
 
 import { useGetUser } from '@features/auth/hooks/useAuthStore';
 
-export interface ProjectPartAndTo {
-  part: string;
-  currentTo: number;
-  maxTo: number;
-}
-
 export enum ProjectCardMode {
   EDIT = 'edit',
   VIEW = 'view',
