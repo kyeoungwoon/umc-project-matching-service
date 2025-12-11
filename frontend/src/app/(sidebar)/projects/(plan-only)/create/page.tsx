@@ -130,7 +130,7 @@ const CreateProjectPage = () => {
     if (form.state.isValid) {
       setConfirmDialogOpen(true);
     } else {
-      console.error(form.getAllErrors());
+      // console.error(form.getAllErrors());
       toast.error('올바른 폼을 작성해주세요.');
     }
   };

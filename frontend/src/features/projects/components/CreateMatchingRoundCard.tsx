@@ -22,7 +22,9 @@ const CreateMatchingRoundCard = ({ chapterId }: { chapterId?: string }) => {
 
   const [start, setStart] = useState<Date | undefined>(defaultStartDatetime);
   const [end, setEnd] = useState<Date | undefined>(defaultEndDatetime);
-  const [decisionDeadline, setDecisionDeadline] = useState<Date | undefined>(defaultDecisionDeadline);
+  const [decisionDeadline, setDecisionDeadline] = useState<Date | undefined>(
+    defaultDecisionDeadline,
+  );
 
   const [roundName, setRoundName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -74,7 +76,7 @@ const CreateMatchingRoundCard = ({ chapterId }: { chapterId?: string }) => {
           setDecisionDeadline(nextDecisionDeadline);
         },
         onError: (err) => {
-          console.error('매칭 라운드 생성에 실패했습니다:', err);
+          // console.error('매칭 라운드 생성에 실패했습니다:', err);
           toast.error('매칭 라운드 생성에 실패했습니다. 다시 시도해주세요.', {
             richColors: true,
             description: err.message,
@@ -103,16 +105,19 @@ const CreateMatchingRoundCard = ({ chapterId }: { chapterId?: string }) => {
           />
           {/* 시간은 KST 기준으로 저장함 */}
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">시작 시간</p>
+            <p className="text-muted-foreground text-sm">시작 시간</p>
             <DatetimePicker date={start} onDateChange={(date) => setStart(date)} />
           </div>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">종료 시간</p>
+            <p className="text-muted-foreground text-sm">종료 시간</p>
             <DatetimePicker date={end} onDateChange={(date) => setEnd(date)} />
           </div>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">합/불 결정 마감</p>
-            <DatetimePicker date={decisionDeadline} onDateChange={(date) => setDecisionDeadline(date)} />
+            <p className="text-muted-foreground text-sm">합/불 결정 마감</p>
+            <DatetimePicker
+              date={decisionDeadline}
+              onDateChange={(date) => setDecisionDeadline(date)}
+            />
           </div>
           <Button type="button" onClick={handleCreateMatchingRound} disabled={!chapterId}>
             매칭 라운드 생성

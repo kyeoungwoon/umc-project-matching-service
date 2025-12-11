@@ -106,7 +106,7 @@ const ProjectInfoCard = ({
           toast.error(`프로젝트 수정에 실패했습니다.`, {
             description: error.message,
           });
-          console.error(error);
+          // console.error(error);
         },
       },
     );

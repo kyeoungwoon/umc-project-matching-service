@@ -153,7 +153,7 @@ export default function ProjectEditForm({ project }: ProjectEditFormProps) {
               router.push(ROUTES.ADMIN.PROJECTS);
             } catch (error) {
               toast.error('TO 수정 중 일부 오류가 발생했습니다.');
-              console.error(error);
+              // console.error(error);
             }
           },
           onError: (error) => {
