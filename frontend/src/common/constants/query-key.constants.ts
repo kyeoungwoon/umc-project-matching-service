@@ -60,7 +60,7 @@ export const queryKeyStore = createQueryKeyStore({
     token: (challengerId: string) => [challengerId],
   },
   matchingRounds: {
-    list: (params?: { page?: number; size?: number }) => [params],
+    list: (params?: { chapterId?: string; startTime?: string; endTime?: string }) => [params],
     detail: (id: string) => [id],
     currentOrClosest: (chapterId: string) => [chapterId],
     current: (chapterId: string) => [chapterId],
@@ -182,10 +182,15 @@ export const testQueryKeys = {
 export const matchingRoundQueryKeys = {
   all: queryKeyStore.matchingRounds._def,
   lists: () => queryKeyStore.matchingRounds.list._def,
-  list: (params?: { page?: number; size?: number }) =>
+  list: (params?: { chapterId?: string; startTime?: string; endTime?: string }) =>
     queryKeyStore.matchingRounds.list(params).queryKey,
   details: () => queryKeyStore.matchingRounds.detail._def,
   detail: (id: string) => queryKeyStore.matchingRounds.detail(id).queryKey,
+  currentOrClosest: (chapterId: string) =>
+    queryKeyStore.matchingRounds.currentOrClosest(chapterId).queryKey,
+  current: (chapterId: string) => queryKeyStore.matchingRounds.current(chapterId).queryKey,
+  byTimeRange: (params: { chapterId: string; startTime: string; endTime: string }) =>
+    queryKeyStore.matchingRounds.byTimeRange(params).queryKey,
 };
 
 // S3 파일 Query Keys

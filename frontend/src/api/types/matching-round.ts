@@ -3,9 +3,9 @@
  */
 
 export interface ProjectMatchingRoundGetRequest {
-  chapterId?: string;
-  startTime?: string;
-  endTime?: string;
+  chapterId: string;
+  startTime: string;
+  endTime: string;
 }
 
 /**
@@ -17,6 +17,7 @@ export interface ProjectMatchingRoundCreateRequest {
   chapterId: string;
   startAt: string;
   endAt: string;
+  decisionDeadlineAt: string;
 }
 
 /**
@@ -27,6 +28,7 @@ export interface ProjectMatchingRoundUpdateRequest {
   description?: string;
   startAt?: string;
   endAt?: string;
+  decisionDeadlineAt?: string;
 }
 
 /**
@@ -40,6 +42,7 @@ export interface ProjectMatchingRoundResponse {
   chapterName: string;
   startAt: string;
   endAt: string;
+  decisionDeadlineAt: string;
   createdAt: string;
   updatedAt: string;
 }

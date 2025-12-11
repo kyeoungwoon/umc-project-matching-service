@@ -20,6 +20,8 @@ import CreateMatchingRoundCard from '@features/projects/components/CreateMatchin
 
 const MatchingRounds = () => {
   const user = useGetUser();
+  const chapterId = user?.info?.chapterId;
+  const chapterName = user?.info?.chapterName;
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -30,40 +32,55 @@ const MatchingRounds = () => {
   const [startDate, setStartDate] = useState<Date>(yesterday);
   const [endDate, setEndDate] = useState<Date>(nextMonth);
 
-  const { data, isFetching } = useGetMatchingRounds(user?.info?.chapterId, startDate, endDate);
-
-  if (isFetching) return <DefaultSkeleton />;
+  const { data, isFetching, refetch, isLoading } = useGetMatchingRounds({
+    chapterId,
+    startTime: startDate,
+    endTime: endDate,
+  });
 
   if (!user) {
     return <DefaultSkeleton />;
   }
 
   const section = {
-    title: `${user.info.chapterName} 지부 매칭 차수 관리`,
-    description: '매칭 차수는 기간을 중복해서 생성이 불가능합니다.',
+    title: `${chapterName} 지부 매칭 차수 관리`,
+    description: '매칭 차수는 기간을 중복해서 생성이 불가능하며, 합/불 결정 마감 시간을 함께 관리합니다.',
   };
+
+  const handleSearch = () => {
+    if (!startDate || !endDate) {
+      return toast.error('조회할 시작/종료 시간을 모두 선택해주세요.', { position: 'top-center' });
+    }
+
+    if (startDate > endDate) {
+      return toast.error('시작 시간이 종료 시간보다 늦을 수 없습니다.', { position: 'top-center' });
+    }
+
+    refetch().then(() => toast.success('조회가 완료되었습니다.', { position: 'top-center' }));
+  };
+
+  if (isLoading) return <DefaultSkeleton />;
+
   return (
     <>
       <UpmsHeader section={section} />
       <div className={'flex flex-col items-start p-5'}>
-        <CreateMatchingRoundCard />
+        <CreateMatchingRoundCard chapterId={chapterId} />
         <Card className="mt-6 w-full">
           <CardContent className={'flex flex-col items-start justify-center gap-y-1'}>
-            <div className="mb-4 flex items-end gap-4">
-              <span>시작</span>
+            <div className="mb-4 flex flex-wrap items-end gap-4">
+              <span className="font-medium">조회 기간</span>
               <DatetimePicker
                 date={startDate}
                 onDateChange={(date) => date && setStartDate(date)}
               />
-              <span>종료</span>
+              <span className="text-muted-foreground">~</span>
               <DatetimePicker date={endDate} onDateChange={(date) => date && setEndDate(date)} />
               <Button
-                onClick={() => {
-                  if (isFetching) return;
-                  toast.success('조회가 완료되었습니다.');
-                }}
+                disabled={isFetching}
+                onClick={handleSearch}
               >
-                조회
+                {isFetching ? '조회 중...' : '조회'}
               </Button>
             </div>
             <p className={'ml-1'}>매칭 차수 목록</p>
