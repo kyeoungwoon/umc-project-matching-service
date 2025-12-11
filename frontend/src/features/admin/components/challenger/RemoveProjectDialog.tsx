@@ -34,7 +34,7 @@ export function RemoveProjectDialog({ challenger, open, onOpenChange }: RemovePr
   const user = useGetUser();
   const chapterId = user?.info.chapterId;
 
-  const [selectedMemberId, setSelectedMemberId] = useState<string>('');
+  const [selectedMemberId, setSelectedMemberId] = useState<string | undefined>(undefined);
 
   const { data: projects, isLoading: isProjectsLoading } = useGetProjects(chapterId);
   const { mutate: deleteProjectMember, isPending } = useDeleteProjectMember();
@@ -94,15 +94,13 @@ export function RemoveProjectDialog({ challenger, open, onOpenChange }: RemovePr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>프로젝트에서 제거</DialogTitle>
-          <DialogDescription>
-            {challenger.name}님을 프로젝트 멤버에서 제거합니다.
-          </DialogDescription>
+          <DialogDescription>{challenger.name}님을 프로젝트 멤버에서 제거합니다.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
+        <div className="gap-4 py-4">
+          <div className="gap-2">
             <Label htmlFor="member">제거할 프로젝트 멤버</Label>
             {memberOptions.length === 0 ? (
               <p className="text-muted-foreground text-sm">

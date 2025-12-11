@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from '@styles/components/ui/dialog';
 import { Label } from '@styles/components/ui/label';
+import { NativeSelect, NativeSelectOption } from '@styles/components/ui/native-select';
 
 import { useAddProjectMember } from '@api/tanstack/admin.queries';
 import { useGetProjects } from '@api/tanstack/projects.queries';
@@ -77,27 +78,39 @@ export function AssignProjectDialog({ challenger, open, onOpenChange }: AssignPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>프로젝트 배정</DialogTitle>
           <DialogDescription>{challenger.name}님을 프로젝트 멤버로 배정합니다.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
+
+        <div className="flex flex-col space-y-4 py-4">
+          {/*프로젝트 선택 dialog*/}
+          <div className="flex flex-col space-y-2">
             <Label htmlFor="project">프로젝트</Label>
             {isProjectsLoading ? (
               <p className="text-muted-foreground text-sm">프로젝트 로딩 중...</p>
             ) : (
-              <Combobox
-                options={projectOptions}
+              // <Combobox
+              //   options={projectOptions}
+              //   value={selectedProjectId}
+              //   onChange={setSelectedProjectId}
+              //   placeholder="프로젝트 선택"
+              //   searchPlaceholder="프로젝트를 검색하세요..."
+              //   emptyPlaceholder="프로젝트가 없습니다."
+              // />
+              <NativeSelect
                 value={selectedProjectId}
-                onChange={setSelectedProjectId}
-                placeholder="프로젝트 선택"
-                searchPlaceholder="프로젝트를 검색하세요..."
-                emptyPlaceholder="프로젝트가 없습니다."
-              />
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+              >
+                {projectOptions.map((option) => (
+                  <NativeSelectOption {...option} />
+                ))}
+              </NativeSelect>
             )}
           </div>
+
+          {/*isActive 여부 결정*/}
           <div className="flex items-center space-x-2">
             <Checkbox
               id="active"
@@ -108,10 +121,11 @@ export function AssignProjectDialog({ challenger, open, onOpenChange }: AssignPr
               htmlFor="active"
               className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              활성 상태로 배정
+              활성 상태로 배정 (기본값)
             </Label>
           </div>
         </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             취소
