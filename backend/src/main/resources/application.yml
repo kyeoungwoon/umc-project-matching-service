@@ -15,7 +15,7 @@ logging:
 
     # JPA/Hibernate - SQL 쿼리 확인
     org.hibernate.SQL: INFO # 실행되는 SQL
-    org.hibernate.orm.jdbc.bind: TRACE # 바인딩 파라미터 (Hibernate 6+)
+    org.hibernate.orm.jdbc.bind: INFO # 바인딩 파라미터 (Hibernate 6+)
 
     # 트랜잭션 확인
     org.springframework.transaction: DEBUG
