@@ -77,4 +77,12 @@ public interface ProjectMatchingRoundRepository extends JpaRepository<ProjectMat
    * 특정 Chapter의 모든 매칭 라운드 조회
    */
   java.util.List<ProjectMatchingRound> findByChapterId(Long chapterId);
+
+  /**
+   * 자동 합/불 처리가 필요한 매칭 라운드 조회 (결정 마감이 지났고, 아직 처리되지 않은 경우)
+   */
+  @Query("SELECT mr FROM ProjectMatchingRound mr "
+      + "WHERE mr.decisionDeadlineAt <= :now "
+      + "AND mr.isAutoDecisionExecuted = false")
+  java.util.List<ProjectMatchingRound> findRoundsToAutoDecide(@Param("now") Instant now);
 }

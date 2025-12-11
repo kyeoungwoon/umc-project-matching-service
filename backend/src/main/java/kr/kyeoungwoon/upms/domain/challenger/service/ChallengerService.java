@@ -106,6 +106,7 @@ public class ChallengerService {
     Challenger challenger = challengerRepository.findByStudentIdAndSchoolIdAndGisu(
             request.studentId(), request.schoolId(), request.gisu())
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
+            // 없으면 에러
             ErrorStatus.CHALLENGER_INVALID_CREDENTIALS));
 
     // 비밀번호 검증

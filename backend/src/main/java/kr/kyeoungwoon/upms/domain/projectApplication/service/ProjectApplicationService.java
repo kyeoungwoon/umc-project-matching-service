@@ -417,7 +417,7 @@ public class ProjectApplicationService {
       // 그치만 관리자는 무적임 ~
       if (!isAdmin) {
         throw new DomainException(DomainType.PROJECT_APPLICATION,
-            ErrorStatus.PA_CANNOT_UPDATE_STATUS_BEFORE_ROUND_END);
+            ErrorStatus.PROJECT_APPLICATION_STATUS_CHANGE_MATCHING_ROUND_NOT_ENDED);
       }
     }
 
@@ -480,7 +480,7 @@ public class ProjectApplicationService {
       ChallengerPart applicantPart = applicant.getPart();
 
       // 1. 해당 파트의 TO 조회
-      kr.kyeoungwoon.upms.domain.project.entity.ProjectTo projectTo =
+      ProjectTo projectTo =
           projectToRepository.findByProjectAndPart(project, applicantPart)
               .orElseThrow(() -> new DomainException(DomainType.PROJECT,
                   ErrorStatus.PROJECT_TO_NOT_FOUND));

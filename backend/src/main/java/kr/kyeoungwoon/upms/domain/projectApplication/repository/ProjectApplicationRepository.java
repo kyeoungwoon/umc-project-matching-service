@@ -7,6 +7,7 @@ import kr.kyeoungwoon.upms.domain.project.entity.Project;
 import kr.kyeoungwoon.upms.domain.projectApplication.entity.ProjectApplication;
 import kr.kyeoungwoon.upms.domain.projectMatchingRound.entity.ProjectMatchingRound;
 import kr.kyeoungwoon.upms.global.enums.ApplicationStatus;
+import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,7 +26,7 @@ public interface ProjectApplicationRepository extends JpaRepository<ProjectAppli
    */
   long countByFormProjectAndApplicantPartAndMatchingRoundNotAndStatus(
       Project project,
-      kr.kyeoungwoon.upms.global.enums.ChallengerPart part,
+      ChallengerPart part,
       ProjectMatchingRound excludedRound,
       ApplicationStatus status
   );
@@ -35,9 +36,15 @@ public interface ProjectApplicationRepository extends JpaRepository<ProjectAppli
    */
   long countByFormProjectAndApplicantPartAndMatchingRoundAndStatus(
       Project project,
-      kr.kyeoungwoon.upms.global.enums.ChallengerPart part,
+      ChallengerPart part,
       ProjectMatchingRound matchingRound,
       ApplicationStatus status
+  );
+
+  long countByFormProjectAndApplicantPartAndMatchingRound(
+      Project project,
+      ChallengerPart part,
+      ProjectMatchingRound matchingRound
   );
 
   @Query("SELECT pa FROM ProjectApplication pa "
@@ -63,4 +70,16 @@ public interface ProjectApplicationRepository extends JpaRepository<ProjectAppli
       + "LEFT JOIN FETCH pa.applicationResponses "
       + "WHERE pa.applicant.id = :challengerId")
   List<ProjectApplication> findByApplicantIdWithResponses(@Param("challengerId") Long challengerId);
+
+  /**
+   * 특정 매칭 라운드와 상태에 해당하는 지원서 조회 (자동 합/불 처리를 위한 최소 정보 포함)
+   */
+  @Query("SELECT pa FROM ProjectApplication pa "
+      + "JOIN FETCH pa.form f "
+      + "JOIN FETCH f.project p "
+      + "JOIN FETCH pa.applicant a "
+      + "WHERE pa.matchingRound.id = :matchingRoundId AND pa.status = :status")
+  List<ProjectApplication> findByMatchingRoundIdAndStatus(
+      @Param("matchingRoundId") Long matchingRoundId,
+      @Param("status") ApplicationStatus status);
 }

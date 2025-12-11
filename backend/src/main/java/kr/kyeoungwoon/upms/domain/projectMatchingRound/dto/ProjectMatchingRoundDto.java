@@ -18,7 +18,9 @@ public class ProjectMatchingRoundDto {
       @Schema(description = "시작 일시", example = "2024-01-01T00:00:00Z")
       Instant startAt,
       @Schema(description = "종료 일시", example = "2024-01-31T23:59:59Z")
-      Instant endAt
+      Instant endAt,
+      @Schema(description = "합/불 결정 마감 일시", example = "2024-02-05T23:59:59Z")
+      Instant decisionDeadlineAt
   ) {
 
   }
@@ -33,7 +35,9 @@ public class ProjectMatchingRoundDto {
       @Schema(description = "시작 일시", example = "2024-01-01T00:00:00Z")
       Instant startAt,
       @Schema(description = "종료 일시", example = "2024-01-31T23:59:59Z")
-      Instant endAt
+      Instant endAt,
+      @Schema(description = "합/불 결정 마감 일시", example = "2024-02-05T23:59:59Z")
+      Instant decisionDeadlineAt
   ) {
 
   }
@@ -55,6 +59,8 @@ public class ProjectMatchingRoundDto {
       Instant startAt,
       @Schema(description = "종료 일시")
       Instant endAt,
+      @Schema(description = "합/불 결정 마감 일시")
+      Instant decisionDeadlineAt,
       @Schema(description = "생성 일시")
       Instant createdAt,
       @Schema(description = "수정 일시")

@@ -11,10 +11,10 @@ logging:
     kr.kyeoungwoon.upms: DEBUG
 
     # Spring Web - 요청/응답 확인
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
 
     # JPA/Hibernate - SQL 쿼리 확인
-    org.hibernate.SQL: DEBUG # 실행되는 SQL
+    org.hibernate.SQL: INFO # 실행되는 SQL
     org.hibernate.orm.jdbc.bind: TRACE # 바인딩 파라미터 (Hibernate 6+)
 
     # 트랜잭션 확인

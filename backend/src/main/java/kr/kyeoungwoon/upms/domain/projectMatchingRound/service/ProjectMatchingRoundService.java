@@ -33,6 +33,14 @@ public class ProjectMatchingRoundService {
           ErrorStatus.MATCHING_ROUND_INVALID_SCHEDULE);
     }
 
+    // 종료 시간이 Plan 결정 마감 시간보다 앞서 있어야 함
+    if (request.decisionDeadlineAt() == null
+        || request.endAt().isAfter(request.decisionDeadlineAt())
+        || request.endAt().equals(request.decisionDeadlineAt())) {
+      throw new DomainException(DomainType.PROJECT_MATCHING_ROUND,
+          ErrorStatus.MATCHING_ROUND_INVALID_SCHEDULE);
+    }
+
     // 같은 Chapter에서 기간이 중복되는 매칭 라운드가 있는지 확인
     boolean hasOverlap = projectMatchingRoundRepository.existsOverlappingRound(
         request.chapterId(),
@@ -51,6 +59,7 @@ public class ProjectMatchingRoundService {
         .chapter(chapter)
         .startAt(request.startAt())
         .endAt(request.endAt())
+        .decisionDeadlineAt(request.decisionDeadlineAt())
         .build();
 
     ProjectMatchingRound saved = projectMatchingRoundRepository.save(matchingRound);
@@ -119,9 +128,18 @@ public class ProjectMatchingRoundService {
 
     Instant newStartAt = request.startAt() != null ? request.startAt() : matchingRound.getStartAt();
     Instant newEndAt = request.endAt() != null ? request.endAt() : matchingRound.getEndAt();
+    Instant newDecisionDeadlineAt = request.decisionDeadlineAt() != null
+        ? request.decisionDeadlineAt()
+        : matchingRound.getDecisionDeadlineAt();
 
     // 시작 시간이 종료 시간보다 늦은 경우 검증
     if (newStartAt.isAfter(newEndAt) || newStartAt.equals(newEndAt)) {
+      throw new DomainException(DomainType.PROJECT_MATCHING_ROUND,
+          ErrorStatus.MATCHING_ROUND_INVALID_SCHEDULE);
+    }
+
+    // 종료 시간 < 결정 마감 시간 이여야 함.
+    if (newEndAt.isAfter(newDecisionDeadlineAt) || newEndAt.equals(newDecisionDeadlineAt)) {
       throw new DomainException(DomainType.PROJECT_MATCHING_ROUND,
           ErrorStatus.MATCHING_ROUND_INVALID_SCHEDULE);
     }
@@ -149,6 +167,8 @@ public class ProjectMatchingRoundService {
         .chapter(matchingRound.getChapter())
         .startAt(newStartAt)
         .endAt(newEndAt)
+        .decisionDeadlineAt(newDecisionDeadlineAt)
+        .isAutoDecisionExecuted(matchingRound.getIsAutoDecisionExecuted())
         .applications(matchingRound.getApplications())
         .build();
 
@@ -174,6 +194,7 @@ public class ProjectMatchingRoundService {
         .chapterName(matchingRound.getChapter().getName())
         .startAt(matchingRound.getStartAt())
         .endAt(matchingRound.getEndAt())
+        .decisionDeadlineAt(matchingRound.getDecisionDeadlineAt())
         .createdAt(matchingRound.getCreatedAt())
         .updatedAt(matchingRound.getUpdatedAt())
         .build();
