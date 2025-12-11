@@ -130,7 +130,7 @@ const ALL_MENUS: SidebarMenus[] = [
         title: '챌린저 검색 및 관리',
         url: ROUTES.ADMIN.CHALLENGER,
         icon: SearchIcon,
-        isVisible: requiresAdminRole,
+        isVisible: requiresMasterRole,
       },
       {
         title: '프로젝트 관리',

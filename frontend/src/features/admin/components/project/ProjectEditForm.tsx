@@ -65,12 +65,12 @@ export default function ProjectEditForm({ project }: ProjectEditFormProps) {
 
   const form = useForm({
     defaultValues: {
-      name: project.name,
-      description: project.description,
+      name: project.name ?? '',
+      description: project.description ?? '',
       productOwnerId: project.productOwnerId,
-      logoImageUrl: project.logoImageUrl,
-      bannerImageUrl: project.bannerImageUrl,
-      notionLink: project.notionLink,
+      logoImageUrl: project.logoImageUrl ?? '',
+      bannerImageUrl: project.bannerImageUrl ?? '',
+      notionLink: project.notionLink ?? '',
     },
     onSubmit: async ({ value }) => {
       const request: ProjectUpdateRequest = {
