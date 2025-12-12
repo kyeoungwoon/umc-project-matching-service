@@ -13,6 +13,7 @@ import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.ChapterLeadOnly;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/projects")
+@Slf4j
 public class ProjectController {
 
   private final ProjectService projectService;
@@ -39,6 +41,8 @@ public class ProjectController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectDto.CreateRequest request) {
     Long requestedChallengerId = userPrincipal.challengerId();
+    log.info("프로젝트 생성 요청 수신 - 요청자 챌린저 ID: {}, 챕터 ID: {}", requestedChallengerId,
+        request.chapterId());
 
     projectService.throwIfChallengerNotPlanOrAdmin(requestedChallengerId, request.chapterId());
 
@@ -48,6 +52,7 @@ public class ProjectController {
   @Operation(summary = "프로젝트 조회", description = "ID로 프로젝트를 조회합니다")
   @GetMapping("/{id}")
   public ApiResponse<ProjectDto.Response> getProject(@PathVariable Long id) {
+    log.info("프로젝트 조회 요청 - 프로젝트 ID: {}", id);
     return ApiResponse.onSuccess(projectService.findById(id));
   }
 
@@ -58,6 +63,7 @@ public class ProjectController {
   public ApiResponse<List<ProjectDto.Response>> getProjects(
       @Parameter(description = "챕터 ID", example = "1")
       @RequestParam Long chapterId) {
+    log.info("프로젝트 목록 조회 요청 - 챕터 ID: {}", chapterId);
     return ApiResponse.onSuccess(projectService.findAll(chapterId));
   }
 
@@ -68,6 +74,8 @@ public class ProjectController {
       @PathVariable Long id,
       @RequestBody ProjectDto.UpdateRequest request) {
 
+    log.info("프로젝트 수정 요청 - 프로젝트 ID: {}, 요청자 챌린저 ID: {}", id,
+        userPrincipal.challengerId());
     projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
         projectService.findById(id).chapterId(), id);
 
@@ -78,6 +86,7 @@ public class ProjectController {
   @Operation(summary = "프로젝트 삭제", description = "프로젝트를 삭제합니다. 지부 운영진만 가능합니다.")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteProject(@PathVariable Long id) {
+    log.info("프로젝트 삭제 요청 - 프로젝트 ID: {}", id);
     projectService.delete(id);
     return ApiResponse.onSuccess(null);
   }
@@ -90,6 +99,8 @@ public class ProjectController {
       @Parameter(description = "매칭 차수 ID") @RequestParam Long matchingRoundId,
       @PathVariable Long projectId) {
 
+    log.info("프로젝트 최소 선발 인원 조회 요청 - 프로젝트 ID: {}, 매칭 차수 ID: {}, 파트: {}, 요청자 챌린저 ID: {}",
+        projectId, matchingRoundId, part, userPrincipal.challengerId());
     // 해당 프로젝트의 PO 또는 지부 운영진인지 확인
     projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
         projectService.findById(projectId).chapterId(), projectId);

@@ -23,6 +23,7 @@ import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.AdminOnly;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/application")
+@Slf4j
 public class ProjectApplicationController {
 
   private final ProjectApplicationService projectApplicationService;
@@ -56,6 +58,8 @@ public class ProjectApplicationController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectApplicationDto.SubmitRequest request) {
 
+    log.info("지원서 제출 요청 - 폼 ID: {}, 신청자 챌린저 ID: {}", request.formId(),
+        userPrincipal.challengerId());
     Long challengerChapterId = chapterService.findByChallengerId(userPrincipal.challengerId()).id();
 
     // 현재 매칭 라운드 조회 : 여기서도 없으면 터짐!
@@ -89,6 +93,7 @@ public class ProjectApplicationController {
   @GetMapping("/{id}")
   public ApiResponse<ProjectApplicationDto.Response> getApplication(
       @PathVariable Long id) {
+    log.info("지원서 단건 조회 요청 - 지원서 ID: {}", id);
     return ApiResponse.onSuccess(projectApplicationService.findById(id));
   }
 
@@ -119,6 +124,8 @@ public class ProjectApplicationController {
       )
       @RequestParam(required = false) Long projectId
   ) {
+    log.info("지원서 목록 조회 요청 - challengerId: {}, chapterId: {}, projectId: {}",
+        challengerId, chapterId, projectId);
     // 1. challengerId가 있으면 챌린저별 조회 (우선순위 최고)
     if (challengerId != null) {
       return ApiResponse.onSuccess(projectApplicationService.findByChallengerId(challengerId));
@@ -141,6 +148,7 @@ public class ProjectApplicationController {
   @GetMapping("me")
   public ApiResponse<List<ProjectApplicationDto.DetailResponse>> getApplications(
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    log.info("본인 지원서 목록 조회 요청 - 챌린저 ID: {}", userPrincipal.challengerId());
     return ApiResponse.onSuccess(projectApplicationService.findByChallengerId(
         userPrincipal.challengerId()));
   }
@@ -153,6 +161,8 @@ public class ProjectApplicationController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @PathVariable Long formId) {
 
+    log.info("폼별 지원서 조회 요청 - 폼 ID: {}, 요청자 챌린저 ID: {}", formId,
+        userPrincipal.challengerId());
     Long formProjectId = projectApplicationFormService.findById(formId).projectId();
     Long formChapterId = projectService.findById(formProjectId).chapterId();
 
@@ -172,6 +182,7 @@ public class ProjectApplicationController {
   @GetMapping("/chapter/{chapterId}/summary")
   public ApiResponse<List<ProjectApplicationDto.ChallengerApplicationSummary>> getChapterApplicationSummary(
       @PathVariable Long chapterId) {
+    log.info("챕터 지원 현황 요약 조회 요청 - 챕터 ID: {}", chapterId);
     return ApiResponse.onSuccess(
         projectApplicationService.findChapterApplicationSummary(chapterId));
   }
@@ -182,6 +193,8 @@ public class ProjectApplicationController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @PathVariable Long id,
       @RequestBody ProjectApplicationDto.UpdateRequest request) {
+    log.info("지원서 상태 수정 요청 - 지원서 ID: {}, 요청자 챌린저 ID: {}", id,
+        userPrincipal.challengerId());
     return ApiResponse.onSuccess(projectApplicationService.update(id, request, userPrincipal));
   }
 
@@ -189,6 +202,7 @@ public class ProjectApplicationController {
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteApplication(@AuthenticationPrincipal UserPrincipal userPrincipal,
       @PathVariable Long id) {
+    log.info("지원서 삭제 요청 - 지원서 ID: {}, 요청자 챌린저 ID: {}", id, userPrincipal.challengerId());
     ProjectApplicationDto.Response application = projectApplicationService.findById(id);
     Long applicationProjectId = application.projectId();
     Long applicationChapterId = projectService.findById(applicationProjectId).chapterId();

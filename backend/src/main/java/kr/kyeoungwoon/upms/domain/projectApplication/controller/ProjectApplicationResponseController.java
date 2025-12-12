@@ -7,6 +7,7 @@ import kr.kyeoungwoon.upms.domain.projectApplication.dto.ProjectApplicationRespo
 import kr.kyeoungwoon.upms.domain.projectApplication.service.ProjectApplicationResponseService;
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/application-responses")
+@Slf4j
 public class ProjectApplicationResponseController {
 
   private final ProjectApplicationResponseService projectApplicationResponseService;
@@ -28,6 +30,8 @@ public class ProjectApplicationResponseController {
   @PostMapping
   public ApiResponse<ProjectApplicationResponseDto.Response> createApplicationResponse(
       @RequestBody ProjectApplicationResponseDto.CreateRequest request) {
+    log.info("지원서 응답 생성 요청 - 지원서 ID: {}, 질문 ID: {}", request.applicationId(),
+        request.questionId());
     return ApiResponse.onSuccess(projectApplicationResponseService.create(request));
   }
 
@@ -35,6 +39,8 @@ public class ProjectApplicationResponseController {
   @PostMapping("/bulk")
   public ApiResponse<List<ProjectApplicationResponseDto.Response>> bulkCreateApplicationResponses(
       @RequestBody ProjectApplicationResponseDto.BulkCreateRequest request) {
+    log.info("지원서 응답 일괄 생성 요청 - 지원서 ID: {}, 응답 수: {}", request.applicationId(),
+        request.responses().size());
     return ApiResponse.onSuccess(projectApplicationResponseService.bulkCreate(request));
   }
 
@@ -42,6 +48,7 @@ public class ProjectApplicationResponseController {
   @GetMapping("/{id}")
   public ApiResponse<ProjectApplicationResponseDto.Response> getApplicationResponse(
       @PathVariable Long id) {
+    log.info("지원서 응답 조회 요청 - 응답 ID: {}", id);
     return ApiResponse.onSuccess(projectApplicationResponseService.findById(id));
   }
 
@@ -52,6 +59,7 @@ public class ProjectApplicationResponseController {
   public ApiResponse<List<ProjectApplicationResponseDto.Response>> getApplicationResponses(
       @io.swagger.v3.oas.annotations.Parameter(description = "지원서 ID (optional)", example = "1")
       @RequestParam(required = false) Long applicationId) {
+    log.info("지원서 응답 목록 조회 요청 - 지원서 ID: {}", applicationId);
     return ApiResponse.onSuccess(projectApplicationResponseService.findAll(applicationId));
   }
 
@@ -66,8 +74,8 @@ public class ProjectApplicationResponseController {
   @Operation(summary = "지원서 응답 삭제", description = "지원서 응답을 삭제합니다")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteApplicationResponse(@PathVariable Long id) {
+    log.info("지원서 응답 삭제 요청 - 응답 ID: {}", id);
     projectApplicationResponseService.delete(id);
     return ApiResponse.onSuccess(null);
   }
 }
-

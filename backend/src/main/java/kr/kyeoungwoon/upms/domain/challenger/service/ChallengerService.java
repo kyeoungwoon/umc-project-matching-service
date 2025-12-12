@@ -18,12 +18,14 @@ import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import kr.kyeoungwoon.upms.global.enums.ChapterAdminRole;
 import kr.kyeoungwoon.upms.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -38,9 +40,14 @@ public class ChallengerService {
 
   @Transactional
   public ChallengerDto.Response create(ChallengerDto.CreateRequest request) {
+    log.info("챌린저 생성 요청 - umsbId: {}, 이름: {}, schoolId: {}", request.umsbId(),
+        request.name(), request.schoolId());
     School school = schoolRepository.findById(request.schoolId())
         .orElseThrow(
-            () -> new DomainException(DomainType.SCHOOL, ErrorStatus.SCHOOL_NOT_FOUND));
+            () -> {
+              log.warn("챌린저 생성 실패 - 학교 없음. schoolId: {}", request.schoolId());
+              return new DomainException(DomainType.SCHOOL, ErrorStatus.SCHOOL_NOT_FOUND);
+            });
 
     Challenger challenger = Challenger.builder()
         .umsbId(request.umsbId())
@@ -56,11 +63,13 @@ public class ChallengerService {
         .build();
 
     Challenger saved = challengerRepository.save(challenger);
+    log.info("챌린저 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public List<ChallengerDto.Response> createBulk(List<ChallengerDto.CreateRequest> requests) {
+    log.info("챌린저 일괄 생성 요청 - 건수: {}", requests.size());
     // 모든 학교 ID를 미리 조회하여 캐싱
     Set<Long> schoolIds = requests.stream()
         .map(ChallengerDto.CreateRequest::schoolId)
@@ -102,6 +111,8 @@ public class ChallengerService {
   }
 
   public ChallengerDto.LoginResponse login(ChallengerDto.LoginRequest request) {
+    log.info("챌린저 로그인 시도 - studentId: {}, schoolId: {}, gisu: {}", request.studentId(),
+        request.schoolId(), request.gisu());
     // 학번, 학교, 기수로 사용자 조회
     Challenger challenger = challengerRepository.findByStudentIdAndSchoolIdAndGisu(
             request.studentId(), request.schoolId(), request.gisu())
@@ -129,6 +140,7 @@ public class ChallengerService {
   }
 
   public ChallengerDto.Response findById(Long id) {
+    log.info("챌린저 단건 조회 - id: {}", id);
     Challenger challenger = challengerRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
             ErrorStatus.CHALLENGER_NOT_FOUND));
@@ -139,6 +151,7 @@ public class ChallengerService {
    * UMSB ID로 Challenger 조회
    */
   public ChallengerDto.Response findByUmsbId(Long umsbId) {
+    log.info("UMSB ID 기반 챌린저 조회 - umsbId: {}", umsbId);
     Challenger challenger = challengerRepository.findByUmsbId(umsbId)
         .orElseThrow(
             () -> new DomainException(DomainType.CHALLENGER,
@@ -147,12 +160,15 @@ public class ChallengerService {
   }
 
   public Page<ChallengerDto.Response> findAll(Pageable pageable) {
+    log.info("챌린저 페이징 조회 - page: {}, size: {}", pageable.getPageNumber(),
+        pageable.getPageSize());
     return challengerRepository.findAll(pageable)
         .map(this::toResponse);
   }
 
   @Transactional
   public ChallengerDto.Response update(Long id, ChallengerDto.UpdateRequest request) {
+    log.info("챌린저 정보 수정 요청 - id: {}", id);
     Challenger challenger = challengerRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
             ErrorStatus.CHALLENGER_NOT_FOUND));
@@ -169,6 +185,7 @@ public class ChallengerService {
 
   @Transactional
   public void delete(Long id) {
+    log.info("챌린저 삭제 요청 - id: {}", id);
     if (!challengerRepository.existsById(id)) {
       throw new DomainException(DomainType.CHALLENGER, ErrorStatus.CHALLENGER_NOT_FOUND);
     }
@@ -180,6 +197,7 @@ public class ChallengerService {
    */
   @Transactional
   public void changePassword(Long id, ChallengerDto.ChangePasswordRequest request) {
+    log.info("챌린저 비밀번호 변경 요청 - id: {}", id);
     Challenger challenger = challengerRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
             ErrorStatus.CHALLENGER_NOT_FOUND));
@@ -196,6 +214,7 @@ public class ChallengerService {
 
   public List<ChallengerDto.Response> findChallengerByName(String name) {
 
+    log.info("챌린저 이름 검색 - keyword: {}", name);
     return challengerRepository.findByNameContaining(name)
         .stream().map(this::toResponse)
         .toList();
@@ -258,6 +277,7 @@ public class ChallengerService {
    * ID로 Challenger 공개 정보 조회 (민감 정보 제외)
    */
   public ChallengerDto.PublicResponse findByIdPublic(Long id) {
+    log.info("챌린저 공개 정보 조회 - id: {}", id);
     Challenger challenger = challengerRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
             ErrorStatus.CHALLENGER_NOT_FOUND));
@@ -268,6 +288,7 @@ public class ChallengerService {
    * UMSB ID로 Challenger 공개 정보 조회 (민감 정보 제외)
    */
   public ChallengerDto.PublicResponse findByUmsbIdPublic(Long umsbId) {
+    log.info("챌린저 공개 정보 UMSB ID 조회 - umsbId: {}", umsbId);
     Challenger challenger = challengerRepository.findByUmsbId(umsbId)
         .orElseThrow(
             () -> new DomainException(DomainType.CHALLENGER,

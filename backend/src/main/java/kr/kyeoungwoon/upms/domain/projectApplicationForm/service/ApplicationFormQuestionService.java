@@ -10,9 +10,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,6 +26,8 @@ public class ApplicationFormQuestionService {
   @Transactional
   public ApplicationFormQuestionDto.Response create(
       ApplicationFormQuestionDto.CreateRequest request) {
+    log.info("지원서 질문 생성 요청 - formId: {}, questionNo: {}", request.formId(),
+        request.questionNo());
     ProjectApplicationForm form = projectApplicationFormRepository.findById(request.formId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
             ErrorStatus.PROJECT_APPLICATION_FORM_NOT_FOUND));
@@ -31,6 +35,7 @@ public class ApplicationFormQuestionService {
     ApplicationFormQuestion question = buildQuestionFromRequest(form, request);
     ApplicationFormQuestion saved = applicationFormQuestionRepository.save(question);
 
+    log.info("지원서 질문 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
@@ -38,6 +43,8 @@ public class ApplicationFormQuestionService {
   public List<ApplicationFormQuestionDto.Response> createBulk(
       ApplicationFormQuestionDto.BulkCreateRequest request) {
 
+    log.info("지원서 질문 일괄 생성 요청 - formId: {}, 건수: {}", request.formId(),
+        request.questions().size());
     ProjectApplicationForm form = projectApplicationFormRepository.findById(request.formId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
             ErrorStatus.PROJECT_APPLICATION_FORM_NOT_FOUND));
@@ -70,6 +77,7 @@ public class ApplicationFormQuestionService {
     List<ApplicationFormQuestion> savedQuestions =
         applicationFormQuestionRepository.saveAll(questions);
 
+    log.info("지원서 질문 일괄 생성 완료 - 저장 건수: {}", savedQuestions.size());
     return savedQuestions.stream()
         .map(this::toResponse)
         .toList();
@@ -77,6 +85,7 @@ public class ApplicationFormQuestionService {
 
 
   public ApplicationFormQuestionDto.Response findById(Long id) {
+    log.info("지원서 질문 단건 조회 - id: {}", id);
     ApplicationFormQuestion question = applicationFormQuestionRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
             ErrorStatus.APPLICATION_FORM_QUESTION_NOT_FOUND));
@@ -84,6 +93,7 @@ public class ApplicationFormQuestionService {
   }
 
   public List<ApplicationFormQuestionDto.Response> findAllByFormId(Long formId) {
+    log.info("지원서 질문 목록 조회 - formId: {}", formId);
     // 삭제되지 않은 질문만 조회
     return applicationFormQuestionRepository.findByFormIdAndDeletedFalseOrderByQuestionNoAsc(formId)
         .stream()
@@ -95,6 +105,7 @@ public class ApplicationFormQuestionService {
   @Transactional
   public ApplicationFormQuestionDto.Response update(Long id,
       ApplicationFormQuestionDto.UpdateRequest request) {
+    log.info("지원서 질문 수정 요청 - id: {}", id);
     ApplicationFormQuestion question = applicationFormQuestionRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
             ErrorStatus.APPLICATION_FORM_QUESTION_NOT_FOUND));
@@ -114,11 +125,13 @@ public class ApplicationFormQuestionService {
         .build();
 
     ApplicationFormQuestion saved = applicationFormQuestionRepository.save(updated);
+    log.info("지원서 질문 수정 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("지원서 질문 삭제 요청 - id: {}", id);
     if (!applicationFormQuestionRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_APPLICATION_FORM,
           ErrorStatus.APPLICATION_FORM_QUESTION_NOT_FOUND);

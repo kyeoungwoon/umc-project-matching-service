@@ -13,9 +13,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import kr.kyeoungwoon.upms.global.enums.ChapterAdminRole;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +29,8 @@ public class ChapterAdminService {
 
   @Transactional
   public ChapterAdminDto.Response create(ChapterAdminDto.CreateRequest request) {
+    log.info("챕터 관리자 권한 부여 요청 - chapterId: {}, challengerId: {}, role: {}",
+        request.chapterId(), request.challengerId(), request.role());
     Chapter chapter = chapterRepository.findById(request.chapterId())
         .orElseThrow(() -> new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND));
 
@@ -41,10 +45,12 @@ public class ChapterAdminService {
         .build();
 
     ChapterAdmin saved = chapterAdminRepository.save(chapterAdmin);
+    log.info("챕터 관리자 권한 부여 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   public ChapterAdminDto.Response findById(Long id) {
+    log.info("챕터 관리자 단건 조회 - id: {}", id);
     ChapterAdmin chapterAdmin = chapterAdminRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHAPTER_ADMIN,
             ErrorStatus.CHAPTER_ADMIN_NOT_FOUND));
@@ -60,6 +66,7 @@ public class ChapterAdminService {
   public List<ChapterAdminDto.Response> findAll(Long chapterId, Long challengerId) {
     List<ChapterAdmin> chapterAdmins;
 
+    log.info("챕터 관리자 목록 조회 - chapterId: {}, challengerId: {}", chapterId, challengerId);
     if (chapterId != null) {
       chapterAdmins = chapterAdminRepository.findByChapterId(chapterId);
     } else if (challengerId != null) {
@@ -75,6 +82,7 @@ public class ChapterAdminService {
 
   @Transactional
   public ChapterAdminDto.Response update(Long id, ChapterAdminDto.UpdateRequest request) {
+    log.info("챕터 관리자 역할 수정 요청 - id: {}, role: {}", id, request.role());
     ChapterAdmin chapterAdmin = chapterAdminRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.CHAPTER_ADMIN,
             ErrorStatus.CHAPTER_ADMIN_NOT_FOUND));
@@ -98,17 +106,20 @@ public class ChapterAdminService {
    * @return 역할(role) 문자열, 권한이 없으면 null
    */
   public ChapterAdminRole getRoleByChallengerIdAndChapterId(Long challengerId, Long chapterId) {
+    log.info("챌린저 챕터 내 역할 조회 - challengerId: {}, chapterId: {}", challengerId, chapterId);
     return chapterAdminRepository.findByChallengerIdAndChapterId(challengerId, chapterId)
         .map(ChapterAdmin::getRole)
         .orElse(null);
   }
 
   public boolean isChallengerChapterAdmin(Long challengerId, Long chapterId) {
+    log.info("챌린저 운영진 여부 확인 - challengerId: {}, chapterId: {}", challengerId, chapterId);
     return chapterAdminRepository.existsByChallengerIdAndChapterId(challengerId, chapterId);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("챕터 관리자 권한 삭제 요청 - id: {}", id);
     if (!chapterAdminRepository.existsById(id)) {
       throw new DomainException(DomainType.CHAPTER_ADMIN, ErrorStatus.CHAPTER_ADMIN_NOT_FOUND);
     }

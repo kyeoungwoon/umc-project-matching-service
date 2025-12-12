@@ -12,9 +12,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +29,8 @@ public class ProjectApplicationResponseService {
   @Transactional
   public ProjectApplicationResponseDto.Response create(
       ProjectApplicationResponseDto.CreateRequest request) {
+    log.info("지원서 답변 생성 요청 - applicationId: {}, questionId: {}", request.applicationId(),
+        request.questionId());
     ProjectApplication application = projectApplicationRepository.findById(request.applicationId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION,
             ErrorStatus.PROJECT_APPLICATION_NOT_FOUND));
@@ -43,12 +47,15 @@ public class ProjectApplicationResponseService {
         .build();
 
     ProjectApplicationResponse saved = projectApplicationResponseRepository.save(response);
+    log.info("지원서 답변 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public List<ProjectApplicationResponseDto.Response> bulkCreate(
       ProjectApplicationResponseDto.BulkCreateRequest request) {
+    log.info("지원서 답변 일괄 생성 요청 - applicationId: {}, 건수: {}", request.applicationId(),
+        request.responses().size());
     ProjectApplication application = projectApplicationRepository.findById(request.applicationId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION,
             ErrorStatus.PROJECT_APPLICATION_NOT_FOUND));
@@ -71,12 +78,14 @@ public class ProjectApplicationResponseService {
     List<ProjectApplicationResponse> savedResponses =
         projectApplicationResponseRepository.saveAll(responses);
 
+    log.info("지원서 답변 일괄 생성 완료 - 저장 건수: {}", savedResponses.size());
     return savedResponses.stream()
         .map(this::toResponse)
         .toList();
   }
 
   public ProjectApplicationResponseDto.Response findById(Long id) {
+    log.info("지원서 답변 단건 조회 - id: {}", id);
     ProjectApplicationResponse response = projectApplicationResponseRepository.findById(id)
         .orElseThrow(
             () -> new DomainException(DomainType.PROJECT_APPLICATION_RESPONSE,
@@ -85,6 +94,7 @@ public class ProjectApplicationResponseService {
   }
 
   public List<ProjectApplicationResponseDto.Response> findAll(Long applicationId) {
+    log.info("지원서 답변 목록 조회 - applicationId 필터: {}", applicationId);
     if (applicationId != null) {
       return projectApplicationResponseRepository.findByApplicationId(applicationId).stream()
           .map(this::toResponse)
@@ -98,6 +108,7 @@ public class ProjectApplicationResponseService {
   @Transactional
   public ProjectApplicationResponseDto.Response update(Long id,
       ProjectApplicationResponseDto.UpdateRequest request) {
+    log.info("지원서 답변 수정 요청 - id: {}", id);
     ProjectApplicationResponse response = projectApplicationResponseRepository.findById(id)
         .orElseThrow(
             () -> new DomainException(DomainType.PROJECT_APPLICATION_RESPONSE,
@@ -111,11 +122,13 @@ public class ProjectApplicationResponseService {
         .build();
 
     ProjectApplicationResponse saved = projectApplicationResponseRepository.save(updated);
+    log.info("지원서 답변 수정 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("지원서 답변 삭제 요청 - id: {}", id);
     if (!projectApplicationResponseRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_APPLICATION_RESPONSE,
           ErrorStatus.PROJECT_APPLICATION_RESPONSE_NOT_FOUND);

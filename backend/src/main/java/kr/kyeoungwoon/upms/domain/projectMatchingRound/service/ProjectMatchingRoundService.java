@@ -11,9 +11,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,6 +26,8 @@ public class ProjectMatchingRoundService {
 
   @Transactional
   public ProjectMatchingRoundDto.Response create(ProjectMatchingRoundDto.CreateRequest request) {
+    log.info("매칭 라운드 생성 요청 - chapterId: {}, 기간: {} ~ {}", request.chapterId(),
+        request.startAt(), request.endAt());
     Chapter chapter = chapterRepository.findById(request.chapterId())
         .orElseThrow(() -> new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND));
 
@@ -63,10 +67,12 @@ public class ProjectMatchingRoundService {
         .build();
 
     ProjectMatchingRound saved = projectMatchingRoundRepository.save(matchingRound);
+    log.info("매칭 라운드 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   public ProjectMatchingRoundDto.Response findById(Long id) {
+    log.info("매칭 라운드 단건 조회 - id: {}", id);
     ProjectMatchingRound matchingRound = projectMatchingRoundRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MATCHING_ROUND,
             ErrorStatus.MATCHING_ROUND_NOT_FOUND));
@@ -77,6 +83,7 @@ public class ProjectMatchingRoundService {
    * 전체 매칭 라운드 조회
    */
   public List<ProjectMatchingRoundDto.Response> findAll() {
+    log.info("전체 매칭 라운드 목록 조회");
     return projectMatchingRoundRepository.findAll().stream()
         .map(this::toResponse)
         .toList();
@@ -86,6 +93,7 @@ public class ProjectMatchingRoundService {
    * 특정 Chapter의 현재 진행 중이거나 가장 가까운 매칭 라운드 조회
    */
   public ProjectMatchingRoundDto.Response findCurrentOrUpcoming(Long chapterId) {
+    log.info("챕터의 진행/예정 매칭 라운드 조회 - chapterId: {}", chapterId);
     ProjectMatchingRound matchingRound = projectMatchingRoundRepository
         .findCurrentOrUpcomingByChapterId(chapterId, Instant.now())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MATCHING_ROUND,
@@ -97,6 +105,7 @@ public class ProjectMatchingRoundService {
    * 특정 Chapter의 현재 진행 중이거나 가장 가까운 매칭 라운드 조회
    */
   public ProjectMatchingRoundDto.Response findCurrent(Long chapterId) {
+    log.info("챕터의 현재 매칭 라운드 조회 - chapterId: {}", chapterId);
     ProjectMatchingRound matchingRound = projectMatchingRoundRepository
         .findCurrentMatchingRound(chapterId, Instant.now())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MATCHING_ROUND,
@@ -109,6 +118,8 @@ public class ProjectMatchingRoundService {
    */
   public List<ProjectMatchingRoundDto.Response> findByChapterAndTimeBetween(
       Long chapterId, Instant startTime, Instant endTime) {
+    log.info("챕터 매칭 라운드 기간 검색 - chapterId: {}, 기간: {} ~ {}", chapterId, startTime,
+        endTime);
     if (!chapterRepository.existsById(chapterId)) {
       throw new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
     }
@@ -122,6 +133,8 @@ public class ProjectMatchingRoundService {
   @Transactional
   public ProjectMatchingRoundDto.Response update(Long id,
       ProjectMatchingRoundDto.UpdateRequest request) {
+    log.info("매칭 라운드 수정 요청 - id: {}, 변경 기간: {} ~ {}", id, request.startAt(),
+        request.endAt());
     ProjectMatchingRound matchingRound = projectMatchingRoundRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MATCHING_ROUND,
             ErrorStatus.MATCHING_ROUND_NOT_FOUND));
@@ -173,11 +186,13 @@ public class ProjectMatchingRoundService {
         .build();
 
     ProjectMatchingRound saved = projectMatchingRoundRepository.save(updated);
+    log.info("매칭 라운드 수정 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("매칭 라운드 삭제 요청 - id: {}", id);
     if (!projectMatchingRoundRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_MATCHING_ROUND,
           ErrorStatus.MATCHING_ROUND_NOT_FOUND);

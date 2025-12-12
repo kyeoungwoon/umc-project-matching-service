@@ -11,11 +11,13 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +29,8 @@ public class ProjectMemberService {
 
   @Transactional
   public ProjectMemberDto.Response create(ProjectMemberDto.CreateRequest request) {
+    log.info("프로젝트 멤버 추가 요청 - projectId: {}, challengerId: {}, active: {}",
+        request.projectId(), request.challengerId(), request.active());
     Project project = projectRepository.findById(request.projectId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
 
@@ -41,10 +45,12 @@ public class ProjectMemberService {
         .build();
 
     ProjectMember saved = projectMemberRepository.save(projectMember);
+    log.info("프로젝트 멤버 추가 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   public ProjectMemberDto.Response findById(Long id) {
+    log.info("프로젝트 멤버 조회 - id: {}", id);
     ProjectMember projectMember = projectMemberRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MEMBER,
             ErrorStatus.PROJECT_MEMBER_NOT_FOUND));
@@ -52,12 +58,15 @@ public class ProjectMemberService {
   }
 
   public Page<ProjectMemberDto.Response> findAll(Pageable pageable) {
+    log.info("프로젝트 멤버 페이징 조회 - page: {}, size: {}", pageable.getPageNumber(),
+        pageable.getPageSize());
     return projectMemberRepository.findAll(pageable)
         .map(this::toResponse);
   }
 
   @Transactional
   public ProjectMemberDto.Response update(Long id, ProjectMemberDto.UpdateRequest request) {
+    log.info("프로젝트 멤버 수정 요청 - id: {}, active: {}", id, request.active());
     ProjectMember projectMember = projectMemberRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_MEMBER,
             ErrorStatus.PROJECT_MEMBER_NOT_FOUND));
@@ -70,11 +79,13 @@ public class ProjectMemberService {
         .build();
 
     ProjectMember saved = projectMemberRepository.save(updated);
+    log.info("프로젝트 멤버 수정 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("프로젝트 멤버 삭제 요청 - id: {}", id);
     if (!projectMemberRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_MEMBER, ErrorStatus.PROJECT_MEMBER_NOT_FOUND);
     }
@@ -82,8 +93,10 @@ public class ProjectMemberService {
   }
 
   public void throwIfAlreadyProjectMember(Long challengerId) {
+    log.info("챌린저 중복 멤버 여부 검증 - challengerId: {}", challengerId);
     boolean exists = projectMemberRepository.existsByChallengerId(challengerId);
     if (exists) {
+      log.warn("이미 프로젝트 멤버로 등록된 챌린저 - challengerId: {}", challengerId);
       throw new DomainException(DomainType.PROJECT_MEMBER,
           ErrorStatus.ALREADY_PROJECT_MEMBER);
     }
