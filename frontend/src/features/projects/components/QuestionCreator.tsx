@@ -1,9 +1,11 @@
 'use client';
 
+import { clsx } from 'clsx';
 import { Trash2Icon, XIcon } from 'lucide-react';
 
 import { Button } from '@styles/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@styles/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@styles/components/ui/field';
 import { Label } from '@styles/components/ui/label';
 import {
   Select,
@@ -13,8 +15,9 @@ import {
   SelectValue,
 } from '@styles/components/ui/select';
 import { Switch } from '@styles/components/ui/switch';
+import { Textarea } from '@styles/components/ui/textarea';
 
-import { QuestionType, QuestionTypeEnum } from '@api/types/common';
+import { QuestionTypeEnum } from '@api/types/common';
 
 import InputFormField from '@features/projects/components/forms/InputFormField';
 
@@ -94,10 +97,26 @@ export default function QuestionCreator({ tanstackForm, index, remove }: Questio
         />
 
         {/* 질문 설명 부분 */}
-        <InputFormField
-          tanstackForm={tanstackForm}
+        <tanstackForm.Field
           name={`questions[${index}].description`}
-          label={'질문 설명'}
+          children={(field: any) => {
+            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <Field>
+                <FieldLabel htmlFor={field.name}>질문 설명</FieldLabel>
+                <Textarea
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder={'질문에 대한 추가 설명이 필요한 경우 작성해주세요. (선택 사항)'}
+                  className={clsx(isInvalid && 'border-red-500')}
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
         />
 
         {/* 질문 유형 선택 & 필수 응답 여부 */}

@@ -33,7 +33,7 @@ export const FileQuestion = ({ field, question }: FileQuestionProps) => {
           {question.title}
           {question.required && <RequiredStar />}
         </CardTitle>
-        <CardDescription>{question.description}</CardDescription>
+        <CardDescription className={'whitespace-pre-line'}>{question.description}</CardDescription>
       </CardHeader>
       <CardContent className={'flex flex-col gap-y-2'}>
         <div className="border-border bg-muted/30 space-y-4 rounded-lg border p-4">

@@ -32,7 +32,7 @@ export const ObjectiveQuestion = ({ field, question }: ObjectiveQuestionProps) =
           {question.title}
           {question.required && <RequiredStar />}
         </CardTitle>
-        <CardDescription>{question.description}</CardDescription>
+        <CardDescription className={'whitespace-pre-line'}>{question.description}</CardDescription>
       </CardHeader>
       <CardContent>
         {type === QuestionTypeEnum.SINGLE_CHOICE ? (
