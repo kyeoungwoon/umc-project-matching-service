@@ -5,12 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -30,7 +31,7 @@ public class LoggingAspect {
   public Object logController(ProceedingJoinPoint joinPoint) throws Throwable {
     // 요청 정보 추출
     HttpServletRequest request = getCurrentRequest();
-    String requestId = UUID.randomUUID().toString().substring(0, 8);
+    String traceId = resolveTraceId();
     String method = request != null ? request.getMethod() : "UNKNOWN";
     String uri = request != null ? request.getRequestURI() : "UNKNOWN";
     String clientIp = request != null ? getClientIp(request) : "UNKNOWN";
@@ -46,7 +47,7 @@ public class LoggingAspect {
     }
 
     log.info("[{}] >>> {} {} | {}.{}() | IP: {} | args: {}",
-        requestId, method, uri, getSimpleClassName(className), methodName, clientIp, args);
+        traceId, method, uri, getSimpleClassName(className), methodName, clientIp, args);
 
     long startTime = System.currentTimeMillis();
 
@@ -55,14 +56,14 @@ public class LoggingAspect {
       long duration = System.currentTimeMillis() - startTime;
 
       log.info("[{}] <<< {} {} | {}ms | return: {}",
-          requestId, method, uri, duration, formatResult(result));
+          traceId, method, uri, duration, formatResult(result));
 
       return result;
     } catch (Exception e) {
       long duration = System.currentTimeMillis() - startTime;
 
       log.error("[{}] !!! {} {} | {}ms | exception: {} - {}",
-          requestId, method, uri, duration, e.getClass().getSimpleName(), e.getMessage());
+          traceId, method, uri, duration, e.getClass().getSimpleName(), e.getMessage());
 
       throw e;
     }
@@ -131,5 +132,14 @@ public class LoggingAspect {
     return uri.contains("/login")
         || uri.contains("/register")  // 회원가입도 비밀번호 포함
         || uri.contains("/password");  // 비밀번호 변경 관련
+  }
+
+  private String resolveTraceId() {
+    String traceId = MDC.get("traceId");
+    if (traceId == null || traceId.isBlank()) {
+      traceId = UUID.randomUUID().toString().substring(0, 8);
+      MDC.put("traceId", traceId);
+    }
+    return traceId;
   }
 }
