@@ -9,6 +9,7 @@ import kr.kyeoungwoon.upms.domain.projectApplicationForm.service.ProjectApplicat
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
 import kr.kyeoungwoon.upms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/form")
+@Slf4j
 public class ProjectApplicationFormController {
 
   private final ProjectApplicationFormService projectApplicationFormService;
@@ -35,6 +37,8 @@ public class ProjectApplicationFormController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectApplicationFormDto.CreateRequest request) {
 
+    log.info("지원서 폼 생성 요청 - 프로젝트 ID: {}, 요청자 챌린저 ID: {}", request.projectId(),
+        userPrincipal.challengerId());
     Long projectChapterId = projectService.findById(request.projectId()).chapterId();
 
     projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
@@ -46,6 +50,7 @@ public class ProjectApplicationFormController {
   @Operation(summary = "지원서 폼 조회", description = "ID로 지원서 폼을 조회합니다")
   @GetMapping("/{id}")
   public ApiResponse<ProjectApplicationFormDto.Response> getForm(@PathVariable Long id) {
+    log.info("지원서 폼 조회 요청 - 폼 ID: {}", id);
     return ApiResponse.onSuccess(projectApplicationFormService.findById(id));
   }
 
@@ -56,6 +61,7 @@ public class ProjectApplicationFormController {
   public ApiResponse<List<ProjectApplicationFormDto.Response>> getForms(
       @io.swagger.v3.oas.annotations.Parameter(description = "프로젝트 ID", example = "1")
       @RequestParam Long projectId) {
+    log.info("지원서 폼 목록 조회 요청 - 프로젝트 ID: {}", projectId);
     return ApiResponse.onSuccess(projectApplicationFormService.findAll(projectId));
   }
 
@@ -65,6 +71,7 @@ public class ProjectApplicationFormController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @PathVariable Long id,
       @RequestBody ProjectApplicationFormDto.UpdateRequest request) {
+    log.info("지원서 폼 수정 요청 - 폼 ID: {}, 요청자 챌린저 ID: {}", id, userPrincipal.challengerId());
     Long formProjectId = projectApplicationFormService.findById(id).projectId();
     Long formProjectChapterId = projectService.findById(formProjectId).chapterId();
 
@@ -78,6 +85,7 @@ public class ProjectApplicationFormController {
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteForm(@AuthenticationPrincipal UserPrincipal userPrincipal,
       @PathVariable Long id) {
+    log.info("지원서 폼 삭제 요청 - 폼 ID: {}, 요청자 챌린저 ID: {}", id, userPrincipal.challengerId());
     Long formProjectId = projectApplicationFormService.findById(id).projectId();
     Long formProjectChapterId = projectService.findById(formProjectId).chapterId();
 

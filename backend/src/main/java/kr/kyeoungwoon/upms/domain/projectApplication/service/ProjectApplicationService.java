@@ -55,6 +55,8 @@ public class ProjectApplicationService {
 
   @Transactional
   public ProjectApplicationDto.Response create(ProjectApplicationDto.CreateRequest request) {
+    log.info("프로젝트 지원서 생성 시작 - formId: {}, applicantId: {}, matchingRoundId: {}",
+        request.formId(), request.applicantId(), request.matchingRoundId());
     ProjectApplicationForm form = projectApplicationFormRepository.findById(request.formId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
             ErrorStatus.PROJECT_APPLICATION_FORM_NOT_FOUND));
@@ -84,6 +86,7 @@ public class ProjectApplicationService {
         .build();
 
     ProjectApplication saved = projectApplicationRepository.save(application);
+    log.info("프로젝트 지원서 저장 완료 - applicationId: {}", saved.getId());
 
     // 2. ProjectApplicationResponse 저장 (responses가 있는 경우)
     if (request.responses() != null && !request.responses().isEmpty()) {
@@ -111,6 +114,7 @@ public class ProjectApplicationService {
   }
 
   public ProjectApplicationDto.Response findById(Long id) {
+    log.info("지원서 단건 조회 - id: {}", id);
     ProjectApplication application = projectApplicationRepository.findByIdWithResponses(id)
         .orElseThrow(
             () -> new DomainException(DomainType.PROJECT_APPLICATION,
@@ -119,12 +123,14 @@ public class ProjectApplicationService {
   }
 
   public List<Response> findAll() {
+    log.info("지원서 전체 조회 실행");
     return projectApplicationRepository.findAllWithResponses().stream()
         .map(this::toResponse)
         .toList();
   }
 
   public List<ProjectApplicationDto.DetailResponse> findByFormId(Long formId) {
+    log.info("특정 폼 지원서 조회 - formId: {}", formId);
     if (!projectApplicationFormRepository.existsById(formId)) {
       throw new DomainException(DomainType.PROJECT_APPLICATION_FORM,
           ErrorStatus.PROJECT_APPLICATION_FORM_NOT_FOUND);
@@ -141,6 +147,7 @@ public class ProjectApplicationService {
    * @return 해당 프로젝트에 제출된 지원서 목록 (응답 포함)
    */
   public List<ProjectApplicationDto.DetailResponse> findByProjectId(Long projectId) {
+    log.info("프로젝트별 지원서 상세 조회 - projectId: {}", projectId);
     // 1. Project 유효성 검증
     if (!projectRepository.existsById(projectId)) {
       throw new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND);
@@ -168,6 +175,7 @@ public class ProjectApplicationService {
    * @return 해당 Chapter의 모든 프로젝트에 제출된 지원서 목록 (응답 포함)
    */
   public List<ProjectApplicationDto.DetailResponse> findByChapterId(Long chapterId) {
+    log.info("챕터별 모든 프로젝트 지원서 조회 - chapterId: {}", chapterId);
     // 1. Chapter 유효성 검증
     if (!chapterRepository.existsById(chapterId)) {
       throw new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
@@ -204,6 +212,7 @@ public class ProjectApplicationService {
    * @return 해당 챌린저가 제출한 지원서 목록 (응답 포함)
    */
   public List<ProjectApplicationDto.DetailResponse> findByChallengerId(Long challengerId) {
+    log.info("챌린저 제출 지원서 조회 - challengerId: {}", challengerId);
     // 1. Challenger 유효성 검증
     if (!challengerRepository.existsById(challengerId)) {
       throw new DomainException(DomainType.CHALLENGER, ErrorStatus.CHALLENGER_NOT_FOUND);
@@ -223,6 +232,7 @@ public class ProjectApplicationService {
    */
   public List<ProjectApplicationDto.ChallengerApplicationSummary> findChapterApplicationSummary(
       Long chapterId) {
+    log.info("챕터별 챌린저 지원 현황 요약 조회 - chapterId: {}", chapterId);
     // 1. Chapter 유효성 검증
     if (!chapterRepository.existsById(chapterId)) {
       throw new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
@@ -302,6 +312,8 @@ public class ProjectApplicationService {
       ChallengerPart challengerPart,
       Long matchingRoundId) {
 
+    log.info("매칭 차수 최소 선발 인원 계산 - projectId: {}, part: {}, matchingRoundId: {}",
+        projectId, challengerPart, matchingRoundId);
     Project project = projectRepository.findById(projectId).orElseThrow(() -> new DomainException(
         DomainType.PROJECT,
         ErrorStatus.PROJECT_NOT_FOUND));
@@ -508,6 +520,8 @@ public class ProjectApplicationService {
       ProjectApplicationDto.UpdateRequest request,
       UserPrincipal userPrincipal
   ) {
+    log.info("지원서 상태 변경 요청 - applicationId: {}, 요청자: {}, 변경 상태: {}", id,
+        userPrincipal.challengerId(), request.status());
     // 1. 엔티티 조회
     ProjectApplication application = projectApplicationRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT_APPLICATION,
@@ -654,6 +668,7 @@ public class ProjectApplicationService {
 
   @Transactional
   public void delete(Long id) {
+    log.info("지원서 삭제 요청 - id: {}", id);
     if (!projectApplicationRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_APPLICATION,
           ErrorStatus.PROJECT_APPLICATION_NOT_FOUND);

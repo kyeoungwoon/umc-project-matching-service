@@ -7,6 +7,7 @@ import kr.kyeoungwoon.upms.domain.projectApplicationForm.dto.ApplicationFormQues
 import kr.kyeoungwoon.upms.domain.projectApplicationForm.service.ApplicationFormQuestionService;
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/form-questions")
+@Slf4j
 public class ApplicationFormQuestionController {
 
   private final ApplicationFormQuestionService applicationFormQuestionService;
@@ -34,6 +36,8 @@ public class ApplicationFormQuestionController {
   @PostMapping("/bulk")
   public ApiResponse<List<ApplicationFormQuestionDto.Response>> createQuestionsBulk(
       @RequestBody ApplicationFormQuestionDto.BulkCreateRequest request) {
+    log.info("지원서 질문 대량 생성 요청 - 폼 ID: {}, 질문 수: {}", request.formId(),
+        request.questions().size());
     return ApiResponse.onSuccess(applicationFormQuestionService.createBulk(request));
   }
 
@@ -41,6 +45,7 @@ public class ApplicationFormQuestionController {
   @Operation(summary = "질문 조회", description = "ID로 질문을 조회합니다")
   @GetMapping("/{id}")
   public ApiResponse<ApplicationFormQuestionDto.Response> getQuestion(@PathVariable Long id) {
+    log.info("지원서 질문 조회 요청 - 질문 ID: {}", id);
     return ApiResponse.onSuccess(applicationFormQuestionService.findById(id));
   }
 
@@ -51,6 +56,7 @@ public class ApplicationFormQuestionController {
   public ApiResponse<List<ApplicationFormQuestionDto.Response>> getQuestions(
       @io.swagger.v3.oas.annotations.Parameter(description = "Form ID", example = "1")
       @RequestParam Long formId) {
+    log.info("지원서 질문 목록 조회 요청 - 폼 ID: {}", formId);
     return ApiResponse.onSuccess(applicationFormQuestionService.findAllByFormId(formId));
   }
 

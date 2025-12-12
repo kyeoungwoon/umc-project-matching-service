@@ -10,6 +10,7 @@ import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
 import kr.kyeoungwoon.upms.security.UserPrincipal;
 import kr.kyeoungwoon.upms.security.annotation.ChapterLeadOnly;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/project-to")
+@Slf4j
 public class ProjectToController {
 
   private final ProjectToService projectToService;
@@ -36,6 +38,8 @@ public class ProjectToController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectToDto.CreateRequest request) {
 
+    log.info("프로젝트 TO 생성 요청 - 프로젝트 ID: {}, 요청자 챌린저 ID: {}", request.projectId(),
+        userPrincipal.challengerId());
     projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
         projectService.findById(request.projectId()).chapterId(),
         request.projectId());
@@ -49,6 +53,8 @@ public class ProjectToController {
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @RequestBody ProjectToDto.BulkCreateRequest request) {
 
+    log.info("프로젝트 TO 일괄 생성 요청 - 프로젝트 ID: {}, 요청자 챌린저 ID: {}", request.projectId(),
+        userPrincipal.challengerId());
     projectService.throwIfChallengerNotProductOwnerOrAdmin(userPrincipal.challengerId(),
         projectService.findById(request.projectId()).chapterId(),
         request.projectId());
@@ -59,6 +65,7 @@ public class ProjectToController {
   @Operation(summary = "프로젝트 To 조회", description = "ID로 프로젝트 To를 조회합니다")
   @GetMapping("/{id}")
   public ApiResponse<ProjectToDto.Response> getProjectTo(@PathVariable Long id) {
+    log.info("프로젝트 TO 조회 요청 - TO ID: {}", id);
     return ApiResponse.onSuccess(projectToService.findById(id));
   }
 
@@ -69,6 +76,7 @@ public class ProjectToController {
   public ApiResponse<List<ProjectToDto.Response>> getProjectTos(
       @io.swagger.v3.oas.annotations.Parameter(description = "프로젝트 ID (optional)", example = "1")
       @RequestParam Long projectId) {
+    log.info("프로젝트 TO 목록 조회 요청 - 프로젝트 ID: {}", projectId);
     return ApiResponse.onSuccess(projectToService.findAll(projectId));
   }
 
@@ -78,6 +86,7 @@ public class ProjectToController {
   public ApiResponse<ProjectToDto.Response> updateProjectTo(
       @PathVariable Long id,
       @RequestBody ProjectToDto.UpdateRequest request) {
+    log.info("프로젝트 TO 수정 요청 - TO ID: {}", id);
     return ApiResponse.onSuccess(projectToService.update(id, request));
   }
 
@@ -85,8 +94,8 @@ public class ProjectToController {
   @Operation(summary = "프로젝트 To 삭제", description = "프로젝트 To를 삭제합니다")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteProjectTo(@PathVariable Long id) {
+    log.info("프로젝트 TO 삭제 요청 - TO ID: {}", id);
     projectToService.delete(id);
     return ApiResponse.onSuccess(null);
   }
 }
-

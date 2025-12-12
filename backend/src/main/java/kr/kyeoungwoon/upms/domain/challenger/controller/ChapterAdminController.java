@@ -9,6 +9,7 @@ import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
 import kr.kyeoungwoon.upms.global.enums.ChapterAdminRole;
 import kr.kyeoungwoon.upms.security.annotation.AdminOnly;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/chapter-admins")
+@Slf4j
 public class ChapterAdminController {
 
   private final ChapterAdminService chapterAdminService;
@@ -32,12 +34,15 @@ public class ChapterAdminController {
   @PostMapping
   public ApiResponse<ChapterAdminDto.Response> createChapterAdmin(
       @RequestBody ChapterAdminDto.CreateRequest request) {
+    log.info("챕터 운영진 생성 요청 - 챕터 ID: {}, 챌린저 ID: {}", request.chapterId(),
+        request.challengerId());
     return ApiResponse.onSuccess(chapterAdminService.create(request));
   }
 
   @Operation(summary = "챕터 관리자 조회", description = "ID로 챕터 관리자를 조회합니다")
   @GetMapping("/{id}")
   public ApiResponse<ChapterAdminDto.Response> getChapterAdmin(@PathVariable Long id) {
+    log.info("챕터 운영진 조회 요청 - 운영진 ID: {}", id);
     return ApiResponse.onSuccess(chapterAdminService.findById(id));
   }
 
@@ -50,6 +55,7 @@ public class ChapterAdminController {
       @RequestParam(required = false) Long chapterId,
       @io.swagger.v3.oas.annotations.Parameter(description = "챌린저 ID (optional)", example = "1")
       @RequestParam(required = false) Long challengerId) {
+    log.info("챕터 운영진 목록 조회 요청 - 챕터 ID: {}, 챌린저 ID: {}", chapterId, challengerId);
     return ApiResponse.onSuccess(chapterAdminService.findAll(chapterId, challengerId));
   }
 
@@ -62,6 +68,7 @@ public class ChapterAdminController {
       @RequestParam Long challengerId,
       @io.swagger.v3.oas.annotations.Parameter(description = "챕터 ID", required = true, example = "1")
       @RequestParam Long chapterId) {
+    log.info("챌린저 챕터 역할 조회 요청 - 챌린저 ID: {}, 챕터 ID: {}", challengerId, chapterId);
     ChapterAdminRole role = chapterAdminService.getRoleByChallengerIdAndChapterId(challengerId,
         chapterId);
 
@@ -79,14 +86,15 @@ public class ChapterAdminController {
   public ApiResponse<ChapterAdminDto.Response> updateChapterAdmin(
       @PathVariable Long id,
       @RequestBody ChapterAdminDto.UpdateRequest request) {
+    log.info("챕터 운영진 수정 요청 - 운영진 ID: {}", id);
     return ApiResponse.onSuccess(chapterAdminService.update(id, request));
   }
 
   @Operation(summary = "챕터 관리자 삭제", description = "챕터 관리자를 삭제합니다")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteChapterAdmin(@PathVariable Long id) {
+    log.info("챕터 운영진 삭제 요청 - 운영진 ID: {}", id);
     chapterAdminService.delete(id);
     return ApiResponse.onSuccess(null);
   }
 }
-

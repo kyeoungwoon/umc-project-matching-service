@@ -10,9 +10,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,6 +26,8 @@ public class ProjectApplicationFormService {
   @Transactional
   public ProjectApplicationFormDto.Response create(
       ProjectApplicationFormDto.CreateRequest request) {
+    log.info("프로젝트 지원서 폼 생성 요청 - projectId: {}, title: {}", request.projectId(),
+        request.title());
     Project project = projectRepository.findById(request.projectId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
 
@@ -34,10 +38,12 @@ public class ProjectApplicationFormService {
         .build();
 
     ProjectApplicationForm saved = projectApplicationFormRepository.save(form);
+    log.info("프로젝트 지원서 폼 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   public ProjectApplicationFormDto.Response findById(Long id) {
+    log.info("지원서 폼 단건 조회 - id: {}", id);
     ProjectApplicationForm form = projectApplicationFormRepository.findById(id)
         .orElseThrow(
             () -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
@@ -53,6 +59,7 @@ public class ProjectApplicationFormService {
   public List<ProjectApplicationFormDto.Response> findAll(Long projectId) {
     List<ProjectApplicationForm> forms;
 
+    log.info("지원서 폼 목록 조회 - projectId 필터: {}", projectId);
     if (projectId != null) {
       forms = projectApplicationFormRepository.findByProjectId(projectId);
     } else {
@@ -67,6 +74,7 @@ public class ProjectApplicationFormService {
   @Transactional
   public ProjectApplicationFormDto.Response update(Long id,
       ProjectApplicationFormDto.UpdateRequest request) {
+    log.info("지원서 폼 수정 요청 - id: {}, title: {}", id, request.title());
     ProjectApplicationForm form = projectApplicationFormRepository.findById(id)
         .orElseThrow(
             () -> new DomainException(DomainType.PROJECT_APPLICATION_FORM,
@@ -82,11 +90,13 @@ public class ProjectApplicationFormService {
         .build();
 
     ProjectApplicationForm saved = projectApplicationFormRepository.save(updated);
+    log.info("지원서 폼 수정 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("지원서 폼 삭제 요청 - id: {}", id);
     if (!projectApplicationFormRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT_APPLICATION_FORM,
           ErrorStatus.PROJECT_APPLICATION_FORM_NOT_FOUND);

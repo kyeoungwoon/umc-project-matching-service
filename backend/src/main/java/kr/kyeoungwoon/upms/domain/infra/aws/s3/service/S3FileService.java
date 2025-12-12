@@ -48,6 +48,8 @@ public class S3FileService {
   @Transactional
   public S3FileDto.PresignedUrlResponse generatePresignedUrl(
       S3FileDto.PresignedUrlRequest request) {
+    log.info("S3 업로드용 presigned URL 생성 - 원본 파일명: {}, 사이즈: {}", request.getFileName(),
+        request.getFileSize());
     // 고유한 파일명 생성
     String storedFileName = UUID.randomUUID().toString();
     String extension = extractExtension(request.getFileName());
@@ -85,6 +87,8 @@ public class S3FileService {
         .build();
 
     S3File savedS3File = s3FileRepository.save(s3FileEntity);
+    log.info("S3 업로드 presigned URL 발급 완료 - fileId: {}, s3Key: {}", savedS3File.getId(),
+        s3Key);
 
     return S3FileDto.PresignedUrlResponse.builder()
         .fileId(savedS3File.getId())
@@ -99,15 +103,20 @@ public class S3FileService {
    */
   @Transactional
   public S3FileDto.FileResponse confirmUpload(Long fileId) {
+    log.info("S3 업로드 완료 확인 - fileId: {}", fileId);
     S3File s3FileEntity = s3FileRepository.findById(fileId)
         .orElseThrow(() -> new DomainException(DomainType.INFRA_S3, ErrorStatus.FILE_NOT_FOUND));
 
     // S3에 실제로 파일이 존재하는지 확인
     if (checkFileExistsInS3(s3FileEntity.getS3Key())) {
       s3FileEntity.updateStatus(FileStatus.UPLOADED);
+      log.info("S3 업로드 확인 완료 - fileId: {}, 상태: {}", s3FileEntity.getId(),
+          s3FileEntity.getStatus());
       return toFileResponse(s3FileEntity);
     } else {
       s3FileEntity.updateStatus(FileStatus.FAILED);
+      log.warn("S3 업로드 확인 실패 - fileId: {}, s3Key: {}", s3FileEntity.getId(),
+          s3FileEntity.getS3Key());
       throw new DomainException(DomainType.INFRA_S3, ErrorStatus.FILE_NOT_UPLOADED);
     }
   }
@@ -116,6 +125,7 @@ public class S3FileService {
    * 파일 조회 (CloudFront URL 반환)
    */
   public S3FileDto.FileResponse getFile(Long fileId) {
+    log.info("S3 파일 조회 - fileId: {}", fileId);
     S3File s3FileEntity = s3FileRepository.findById(fileId)
         .orElseThrow(() -> new DomainException(DomainType.INFRA_S3, ErrorStatus.FILE_NOT_FOUND));
 
@@ -126,6 +136,7 @@ public class S3FileService {
    * S3 Key로 CloudFront URL 생성
    */
   public String getCloudFrontUrl(String s3Key) {
+    log.info("CloudFront URL 생성 - s3Key: {}", s3Key);
     return cloudFrontDomain + "/" + s3Key;
   }
 

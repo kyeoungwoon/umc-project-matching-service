@@ -12,9 +12,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import kr.kyeoungwoon.upms.global.enums.ChallengerPart;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,6 +27,7 @@ public class ChapterService {
 
   @Transactional
   public ChapterDto.Response create(ChapterDto.CreateRequest request) {
+    log.info("챕터 생성 요청 - 이름: {}, 기수: {}", request.name(), request.gisu());
     Chapter chapter = Chapter.builder()
         .name(request.name())
         .description(request.description())
@@ -32,6 +35,7 @@ public class ChapterService {
         .build();
 
     Chapter saved = chapterRepository.save(chapter);
+    log.info("챕터 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
@@ -45,6 +49,7 @@ public class ChapterService {
             .build())
         .toList();
 
+    log.info("챕터 일괄 생성 요청 - 건수: {}", chapters.size());
     List<Chapter> savedChapters = chapterRepository.saveAll(chapters);
 
     return savedChapters.stream()
@@ -54,7 +59,10 @@ public class ChapterService {
 
   public ChapterDto.Response findById(Long id) {
     Chapter chapter = chapterRepository.findByIdWithSchools(id)
-        .orElseThrow(() -> new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND));
+        .orElseThrow(() -> {
+          log.warn("챕터 조회 실패 - 존재하지 않는 id: {}", id);
+          return new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
+        });
     return toResponseWithSchools(chapter);
   }
 
@@ -63,24 +71,34 @@ public class ChapterService {
    */
   public ChapterDto.Response findByChallengerId(Long challengerId) {
     Chapter chapter = chapterRepository.findByChallengerId(challengerId)
-        .orElseThrow(() -> new DomainException(DomainType.CHAPTER,
-            ErrorStatus.CHAPTER_FOR_CHALLENGER_NOT_FOUND));
+        .orElseThrow(() -> {
+          log.warn("챌린저 소속 챕터 조회 실패 - challengerId: {}", challengerId);
+          return new DomainException(DomainType.CHAPTER,
+              ErrorStatus.CHAPTER_FOR_CHALLENGER_NOT_FOUND);
+        });
     return toResponse(chapter);
   }
 
   public boolean isChallengerPlanInChapter(Long challengerId, Long chapterId) {
     Chapter chapter = chapterRepository.findByChallengerId(challengerId)
-        .orElseThrow(() -> new DomainException(DomainType.CHAPTER,
-            ErrorStatus.CHAPTER_FOR_CHALLENGER_NOT_FOUND));
+        .orElseThrow(() -> {
+          log.warn("챌린저 소속 챕터 조회 실패 - challengerId: {}", challengerId);
+          return new DomainException(DomainType.CHAPTER,
+              ErrorStatus.CHAPTER_FOR_CHALLENGER_NOT_FOUND);
+        });
 
     Challenger challenger = challengerRepository.findById(challengerId)
-        .orElseThrow(() -> new DomainException(DomainType.CHALLENGER,
-            ErrorStatus.CHALLENGER_NOT_FOUND));
+        .orElseThrow(() -> {
+          log.warn("챌린저 조회 실패(PLAN 역할 확인) - challengerId: {}", challengerId);
+          return new DomainException(DomainType.CHALLENGER,
+              ErrorStatus.CHALLENGER_NOT_FOUND);
+        });
 
     return challenger.getPart() == ChallengerPart.PLAN && chapter.getId().equals(chapterId);
   }
 
   public List<Response> findAll() {
+    log.info("전체 챕터 목록 조회");
     return chapterRepository.findAll().stream()
         .map(this::toResponseWithSchools)
         .toList();
@@ -89,18 +107,23 @@ public class ChapterService {
   @Transactional
   public ChapterDto.Response update(Long id, ChapterDto.UpdateRequest request) {
     Chapter chapter = chapterRepository.findById(id)
-        .orElseThrow(() -> new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND));
+        .orElseThrow(() -> {
+          log.warn("챕터 수정 실패 - 존재하지 않는 id: {}", id);
+          return new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
+        });
 
     chapter.updateInfo(request.name(), request.description());
-
+    log.info("챕터 수정 완료 - id: {}", chapter.getId());
     return toResponse(chapter);
   }
 
   @Transactional
   public void delete(Long id) {
     if (!chapterRepository.existsById(id)) {
+      log.warn("챕터 삭제 실패 - 존재하지 않는 id: {}", id);
       throw new DomainException(DomainType.CHAPTER, ErrorStatus.CHAPTER_NOT_FOUND);
     }
+    log.info("챕터 삭제 진행 - id: {}", id);
     chapterRepository.deleteById(id);
   }
 

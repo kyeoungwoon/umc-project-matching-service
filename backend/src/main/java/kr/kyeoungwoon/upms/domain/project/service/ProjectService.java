@@ -14,9 +14,11 @@ import kr.kyeoungwoon.upms.global.apiPayload.code.status.ErrorStatus;
 import kr.kyeoungwoon.upms.global.apiPayload.enums.DomainType;
 import kr.kyeoungwoon.upms.global.apiPayload.exception.DomainException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,6 +33,8 @@ public class ProjectService {
 
   @Transactional
   public ProjectDto.Response create(ProjectDto.CreateRequest request) {
+    log.info("프로젝트 생성 요청 처리 - PO: {}, 챕터: {}, 이름: {}", request.productOwnerId(),
+        request.chapterId(), request.name());
     Challenger productOwner = challengerRepository.findById(request.productOwnerId())
         .orElseThrow(() -> new DomainException(DomainType.PROJECT,
             ErrorStatus.PROJECT_PRODUCT_OWNER_NOT_FOUND));
@@ -50,16 +54,19 @@ public class ProjectService {
         .build();
 
     Project saved = projectRepository.save(project);
+    log.info("프로젝트 생성 완료 - id: {}", saved.getId());
     return toResponse(saved);
   }
 
   public ProjectDto.Response findById(Long id) {
+    log.info("프로젝트 단건 조회 - id: {}", id);
     Project project = projectRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
     return toResponse(project);
   }
 
   public void throwIfProjectNotBelongsToChapter(Long projectId, Long chapterId) {
+    log.info("프로젝트와 챕터 소속 검증 - projectId: {}, chapterId: {}", projectId, chapterId);
     if (projectRepository.existsByIdAndChapterId(projectId, chapterId)) {
       return;
     }
@@ -75,6 +82,7 @@ public class ProjectService {
   public List<ProjectDto.Response> findAll(Long chapterId) {
     List<Project> projects;
 
+    log.info("프로젝트 목록 조회 - chapterId: {}", chapterId);
     if (chapterId != null) {
       projects = projectRepository.findByChapterId(chapterId);
     } else {
@@ -88,6 +96,7 @@ public class ProjectService {
 
   @Transactional
   public ProjectDto.Response update(Long id, ProjectDto.UpdateRequest request) {
+    log.info("프로젝트 수정 요청 - id: {}, 요청 정보: {}", id, request);
     Project project = projectRepository.findById(id)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
 
@@ -100,13 +109,17 @@ public class ProjectService {
           .orElseThrow(() -> new DomainException(DomainType.PROJECT,
               ErrorStatus.PROJECT_PRODUCT_OWNER_NOT_FOUND));
       project.changeOwner(productOwner);
+      log.info("프로젝트 PO 변경 - projectId: {}, newPO: {}", project.getId(),
+          productOwner.getId());
     }
 
+    log.info("프로젝트 수정 완료 - id: {}", project.getId());
     return toResponse(project);
   }
 
   @Transactional
   public void delete(Long id) {
+    log.info("프로젝트 삭제 요청 - id: {}", id);
     if (!projectRepository.existsById(id)) {
       throw new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND);
     }
@@ -114,6 +127,7 @@ public class ProjectService {
   }
 
   public boolean isChallengerProductOwner(Long projectId, Long challengerId) {
+    log.info("프로젝트 PO 여부 확인 - projectId: {}, challengerId: {}", projectId, challengerId);
     Project project = projectRepository.findById(projectId)
         .orElseThrow(() -> new DomainException(DomainType.PROJECT, ErrorStatus.PROJECT_NOT_FOUND));
     return project.getProductOwner().getId().equals(challengerId);
@@ -123,6 +137,8 @@ public class ProjectService {
 
   public void throwIfChallengerNotProductOwnerOrAdmin(Long challengerId, Long chapterId,
       Long projectId) {
+    log.info("PO/운영진 권한 검증 - challengerId: {}, chapterId: {}, projectId: {}", challengerId,
+        chapterId, projectId);
     boolean isChallengerProductOwnerOrAdmin =
         this.isChallengerProductOwner(projectId, challengerId)
             || chapterAdminService.isChallengerChapterAdmin(challengerId, chapterId);
@@ -133,6 +149,7 @@ public class ProjectService {
   }
 
   public void throwIfChallengerNotPlanOrAdmin(Long challengerId, Long chapterId) {
+    log.info("Plan/운영진 권한 검증 - challengerId: {}, chapterId: {}", challengerId, chapterId);
     boolean isPlanOrAdmin =
         chapterService.isChallengerPlanInChapter(challengerId, chapterId)
             || chapterAdminService.isChallengerChapterAdmin(challengerId, chapterId);
