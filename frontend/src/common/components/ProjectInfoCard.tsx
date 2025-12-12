@@ -125,7 +125,7 @@ const ProjectInfoCard = ({
           <span>프로젝트 제목</span>
           <Input
             value={editedProject.name || ''}
-            onChange={(e) => setEditedProject((prev) => ({ ...prev, title: e.target.value }))}
+            onChange={(e) => setEditedProject((prev) => ({ ...prev, name: e.target.value }))}
             className="text-xl font-bold"
           />
           <span>프로젝트 설명</span>
@@ -137,7 +137,7 @@ const ProjectInfoCard = ({
           <span>프로젝트 기획안</span>
           <Input
             value={editedProject.notionLink || ''}
-            onChange={(e) => setEditedProject((prev) => ({ ...prev, link: e.target.value }))}
+            onChange={(e) => setEditedProject((prev) => ({ ...prev, notionLink: e.target.value }))}
             className="text-muted-foreground mb-2 text-lg"
           />
         </div>
