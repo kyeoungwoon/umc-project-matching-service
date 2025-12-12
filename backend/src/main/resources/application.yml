@@ -82,7 +82,6 @@ spring:
     hikari:
       auto-commit: true
 
-
       maximum-pool-size: 50       # Core * 2 + 여유분
       minimum-idle: 50            # max와 동일하게 설정 (고정 풀 크기 권장)
 

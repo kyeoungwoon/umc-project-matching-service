@@ -113,7 +113,6 @@ const UpmsSideBar = () => {
                     );
                   })}
                 </SidebarMenu>
-                <SidebarMenuItem></SidebarMenuItem>
               </SidebarGroupContent>
             </SidebarGroup>
           );
