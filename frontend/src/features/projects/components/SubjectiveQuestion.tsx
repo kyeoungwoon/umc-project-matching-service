@@ -27,7 +27,7 @@ export const SubjectiveQuestion = ({ field, question }: SubjectiveQuestionProps)
           {question.title}
           {question.required && <RequiredStar />}
         </CardTitle>
-        <CardDescription>{question.description}</CardDescription>
+        <CardDescription className={'whitespace-pre-line'}>{question.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Textarea
