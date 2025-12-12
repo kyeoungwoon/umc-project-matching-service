@@ -49,9 +49,9 @@ import InputFormField from '@features/projects/components/forms/InputFormField';
 const projectSchema = z.object({
   name: z.string().min(1, '프로젝트 이름을 입력해주세요.'),
   description: z.string().min(1, '프로젝트 설명을 입력해주세요.'),
-  notionLink: z.url('올바른 URL을 입력해주세요.'),
-  logoImageUrl: z.url('올바른 URL을 입력해주세요.'),
-  bannerImageUrl: z.url('올바른 URL을 입력해주세요.'),
+  notionLink: z.url('올바른 URL을 입력해주세요.').or(z.literal('')),
+  logoImageUrl: z.url('올바른 URL을 입력해주세요.').or(z.literal('')),
+  bannerImageUrl: z.url('올바른 URL을 입력해주세요.').or(z.literal('')),
   toItems: z
     .array(
       z.object({
