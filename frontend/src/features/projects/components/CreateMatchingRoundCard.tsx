@@ -91,7 +91,14 @@ const CreateMatchingRoundCard = ({ chapterId }: { chapterId?: string }) => {
     <Card className={'w-150'}>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-lg font-semibold">매칭 라운드 생성</p>
+          <div className={'flex flex-col gap-1'}>
+            <p className="text-lg font-semibold">매칭 라운드 생성</p>
+            <p className={'text-muted-foreground text-sm whitespace-pre-line'}>
+              OS에서 12시간 형식을 사용하시는 경우, 오전/오후는 키보드 위/아래 방향키로 변경
+              가능합니다.{'\n'}
+              (오전 12:00 = 00:00, 오후 12:00 = 12:00 임에 유의하세요)
+            </p>
+          </div>
           <Input
             value={roundName}
             onChange={(e) => setRoundName(e.target.value)}

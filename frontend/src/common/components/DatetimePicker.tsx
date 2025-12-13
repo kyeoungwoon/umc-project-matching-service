@@ -27,7 +27,19 @@ export const DatetimePicker = ({ date, onDateChange }: DatetimePickerProps) => {
   // 시간 변경 핸들러
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const timeString = e.target.value; // "HH:mm:ss" 형식
+    // console.log(timeString);
+
+    // 빈 값이거나 불완전한 입력인 경우 처리하지 않음
+    if (!timeString || timeString.length < 5) {
+      return;
+    }
+
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
+
+    // 유효하지 않은 숫자가 있는 경우 처리하지 않음
+    if (isNaN(hours) || isNaN(minutes)) {
+      return;
+    }
 
     // 기존 date가 있으면 그 날짜에 시간만 변경, 없으면 오늘 날짜 사용
     const newDate = date ? new Date(date) : new Date();
