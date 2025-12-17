@@ -5,6 +5,7 @@ import kr.kyeoungwoon.upms.domain.infra.aws.s3.dto.S3FileDto;
 import kr.kyeoungwoon.upms.domain.infra.aws.s3.dto.S3FileDto.PresignedUrlResponse;
 import kr.kyeoungwoon.upms.domain.infra.aws.s3.service.S3FileService;
 import kr.kyeoungwoon.upms.global.apiPayload.ApiResponse;
+import kr.kyeoungwoon.upms.security.annotation.CentralAdminOnly;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +45,7 @@ public class FileController {
   /**
    * 파일 정보 조회 (CloudFront URL 포함)
    */
+  @CentralAdminOnly
   @GetMapping("/{fileId}")
   public ApiResponse<S3FileDto.FileResponse> getFile(@PathVariable Long fileId) {
     S3FileDto.FileResponse response = s3FileService.getFile(fileId);
