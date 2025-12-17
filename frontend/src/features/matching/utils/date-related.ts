@@ -8,7 +8,7 @@ export function getTimeRemaining(endDatetime: string, now: Date = new Date()) {
   }
 
   const totalSeconds = Math.floor(diff / 1000);
-  const days = Math.floor(totalSeconds / (60 * 60 * 24));
+  const days = Math.floor(totalSeconds / (60 * 60 * 24)); // 24시간으로 나누면 됨
   const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60));
   const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
   const seconds = totalSeconds % 60;

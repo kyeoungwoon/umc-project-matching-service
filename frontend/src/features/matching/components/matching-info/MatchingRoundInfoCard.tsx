@@ -38,24 +38,20 @@ const MatchingRoundInfoCard = ({ data }: { data: ProjectMatchingRoundResponse })
   return (
     <div className="my-5 flex w-full flex-row items-center justify-between gap-x-4 overflow-hidden px-5">
       {/*이름 */}
-      <Label className={'flex-shrink-0 flex-grow-0 text-3xl tracking-tight text-gray-600'}>
+      <Label className={'shrink-0 grow-0 text-3xl tracking-tight text-gray-600'}>
         <span>{isFuture ? '다가오는 매칭' : '현재 매칭'}</span> |{' '}
         <p className="text-foreground font-semibold">{data.name}</p>
       </Label>
 
       {/*종료 시간 */}
-      <div className={'flex flex-shrink-0 flex-grow-0 flex-row items-center justify-center gap-2'}>
+      <div className={'flex shrink-0 grow-0 flex-row items-center justify-center gap-2'}>
         <Time datetime={startDate} /> ~ <Time datetime={endDate} />
       </div>
 
-      <span
-        className={
-          'flex w-70 flex-shrink-0 flex-grow-0 flex-row items-center gap-x-3 text-gray-600'
-        }
-      >
+      <span className={'w-280pxr flex shrink-0 grow-0 flex-row items-center gap-x-3 text-gray-600'}>
         <ClockIcon />
         <span>{isFuture ? '시작까지' : '마감까지'}</span>
-        {getTimeRemaining(data.endAt, currentTime)}
+        {getTimeRemaining(isFuture ? data.startAt : data.endAt, currentTime)}
       </span>
 
       {/*<Progress*/}
